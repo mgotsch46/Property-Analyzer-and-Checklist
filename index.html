@@ -55,6 +55,10 @@
   a.src{color:#1a56c4;font-size:11px}
   .grp{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 3px}
   .note{font-size:10.5px;color:var(--mut);margin-top:8px;line-height:1.5}
+  #busy{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:none;align-items:center;gap:10px;background:#1b2430;color:#fff;padding:11px 18px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 6px 20px rgba(0,0,0,.28)}
+  #busy.on{display:flex}
+  .spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#f4c542;border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -94,8 +98,9 @@
   <div class="card">
     <h2>2 &middot; Property Tax (Millage) &amp; Insurance Calculators</h2>
     <div class="grp">Non-homestead property tax &mdash; millage calculator <span class="hint">(rate researched by address on RUN; editable)</span></div>
-    <div class="row3">
-      <div><label>Non-homestead millage (mills) <span class="hint">(uses purchase price)</span></label><input id="m_mills" class="calc" type="number" step="0.01" value="50" oninput="millage()"></div>
+    <div class="row4">
+      <div><label>Assessed / market value ($)</label><input id="m_val" class="calc" type="number" placeholder="uses purchase price if blank" oninput="millage()"></div>
+      <div><label>Non-homestead millage (mills)</label><input id="m_mills" class="calc" type="number" step="0.01" placeholder="mills" oninput="millage()"></div>
       <div><label>MI SEV basis</label><select id="m_sev" class="calc" onchange="millage()"><option value="1">Yes (taxable = 50% value)</option><option value="0">No (taxable = value)</option></select></div>
       <div><label>Annual property tax</label><input id="m_annual" readonly value="—"></div>
     </div>
@@ -107,9 +112,9 @@
 
     <div class="grp">Estimated homeowners / landlord insurance</div>
     <div class="row4">
-      <div><label>Dwelling / ACV coverage ($)</label><input id="in_dwell" class="calc" type="number" value="50000" oninput="insurance()"></div>
-      <div><label>Rate per $1,000 /yr ($)</label><input id="in_rate" class="calc" type="number" step="0.5" value="12" oninput="insurance()"><div class="hint">landlord ACV typ. $8&ndash;18</div></div>
-      <div><label>Liability rider /yr ($)</label><input id="in_liab" class="calc" type="number" value="300" oninput="insurance()"></div>
+      <div><label>Dwelling / ACV coverage ($)</label><input id="in_dwell" class="calc" type="number" placeholder="coverage $" oninput="insurance()"></div>
+      <div><label>Rate per $1,000 /yr ($)</label><input id="in_rate" class="calc" type="number" step="0.5" placeholder="per $1,000/yr" oninput="insurance()"><div class="hint">landlord ACV typ. $8&ndash;18</div></div>
+      <div><label>Liability rider /yr ($)</label><input id="in_liab" class="calc" type="number" placeholder="liability $" oninput="insurance()"></div>
       <div><label>Annual premium</label><input id="in_annual" readonly value="—"></div>
     </div>
     <div class="row3">
@@ -140,11 +145,11 @@
       <div><label>PML term (months)</label><input id="i_pmlterm" class="calc" type="number" value="60" oninput="calc()"></div>
       <div><label>PML payment /mo</label><input id="o_pml" readonly value="—"></div>
     </div>
-    <div class="grp">Monthly carry <span class="hint">(property tax is driven by the millage calculator above)</span></div>
-    <input type="hidden" id="i_tax" value="0">
-    <div class="row2">
-      <div><label>Insurance /mo ($)</label><input id="i_ins" class="calc" type="number" step="0.01" value="75.00" oninput="calc()"></div>
-      <div><label>Legal &amp; admin /mo ($)</label><input id="i_legal" class="calc" type="number" value="0" oninput="calc()"></div>
+    <div class="grp">Monthly carry <span class="hint">(property tax auto-fills from the millage calculator; editable)</span></div>
+    <div class="row3">
+      <div><label>Property tax /mo ($)</label><input id="i_tax" class="calc" type="number" step="0.01" placeholder="0.00" oninput="calc()"></div>
+      <div><label>Insurance /mo ($)</label><input id="i_ins" class="calc" type="number" step="0.01" placeholder="0.00" oninput="calc()"></div>
+      <div><label>Legal &amp; admin /mo ($)</label><input id="i_legal" class="calc" type="number" placeholder="0" oninput="calc()"></div>
     </div>
     <div class="grp">Sale to Tenant-Buyer (TB)</div>
     <div class="row5">
@@ -209,11 +214,14 @@
     <h3>Sources</h3><div id="rep_src" class="note"></div>
   </div>
 </div>
+<div id="busy"><div class="spin"></div><span id="busytxt">Working…</span></div>
 <script>
 const $=id=>document.getElementById(id);
 const money=n=>isFinite(n)?'$'+Math.round(n).toLocaleString():'—';
 const money2=n=>isFinite(n)?'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 const pct=(n,d=1)=>isFinite(n)?n.toFixed(d)+'%':'—';
+function showBusy(t){var b=$('busy');if(!b)return;$('busytxt').textContent=t||'Working…';b.classList.add('on');}
+function hideBusy(){var b=$('busy');if(b)b.classList.remove('on');}
 
 let R = {
   pin:"— look up", legal:"— look up", owner:"— look up", listPrice:"—", mls:"—",
@@ -233,11 +241,11 @@ function amort(P,ratePct,n){const r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:
 
 /* ---- millage & insurance calculators ---- */
 function millage(){
-  const val=+$('i_price').value||0, mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
+  const val=(+$('m_val').value|| +$('i_price').value||0), mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
   const taxable = sev ? val*0.5 : val;
   const annual = taxable*mills/1000, mo=annual/12;
-  $('m_annual').value=money(annual); $('m_month').value=money2(mo);
-  $('i_tax').value=mo.toFixed(2);
+  if(val>0 && mills>0){ $('m_annual').value=money(annual); $('m_month').value=money2(mo); $('i_tax').value=mo.toFixed(2); }
+  else { $('m_annual').value='—'; $('m_month').value='—'; }
   calc();
 }
 function insurance(){
@@ -449,8 +457,8 @@ function applyFull(){
   if(Array.isArray(j.saleComps))R.saleComps=j.saleComps;
   if(j.compsNote)R.compsNote=j.compsNote;
   if(j.millage!=null){R.millage=j.millage; if($('m_mills'))$('m_mills').value=j.millage;}
-  millage(); insurance(); renderReport();
-  window.scrollTo(0,document.getElementById('report').offsetTop-10);
+  showBusy('Applying research…'); millage(); insurance(); renderReport();
+  window.scrollTo(0,document.getElementById('report').offsetTop-10); setTimeout(hideBusy,400);
 }
 millage(); insurance(); renderReport();
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
@@ -459,10 +467,10 @@ function runResearch(){
   const payload={address:$('addr').value,city:$('city').value,state:$('state').value,zip:$('zip').value};
   const hosted=location.protocol==='http:'||location.protocol==='https:';
   if(hosted){
-    const btn=document.querySelector('.b-run');const t0=btn.textContent;btn.textContent='Running research…';
+    const btn=document.querySelector('.b-run');const t0=btn.textContent;btn.textContent='Running research…';showBusy('Researching '+fullAddr()+' — flood, county & data…');
     fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(r=>r.json()).then(d=>{btn.textContent=t0;if(d.error){alert('Research error: '+d.error);return;}applyResearch(d);})
-      .catch(e=>{btn.textContent=t0;alert('Could not reach research server: '+e.message);});
+      .then(r=>r.json()).then(d=>{btn.textContent=t0;hideBusy();if(d.error){alert('Research error: '+d.error);return;}applyResearch(d);})
+      .catch(e=>{btn.textContent=t0;hideBusy();alert('Could not reach research server: '+e.message);});
     return;
   }
   const msg='Run full due-diligence and refill the report for: '+fullAddr()+'. Deal type: '+$('dealtype').value+'. Pull comps (low/mid/high), FEMA flood, crime, non-homestead millage, tax, PIN, legal, and any liens; use my Slow Flip inputs.';
@@ -473,7 +481,7 @@ function runResearch(){
 function downloadPDF(){
   const el=$('report');
   if(!window.jspdf||!window.html2canvas){window.print();return;}
-  const btn=document.querySelector('.b-pdf');const t0=btn.textContent;btn.textContent='Building PDF…';
+  const btn=document.querySelector('.b-pdf');const t0=btn.textContent;btn.textContent='Building PDF…';showBusy('Building PDF…');
   html2canvas(el,{scale:2,backgroundColor:'#ffffff',windowWidth:el.scrollWidth}).then(canvas=>{
     const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','pt','letter');
     const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
@@ -482,8 +490,8 @@ function downloadPDF(){
     pdf.addImage(img,'PNG',20,pos,iw,ih);left-=(ph-40);
     while(left>0){pdf.addPage();pos=20-(ih-left)-20;pdf.addImage(img,'PNG',20,pos,iw,ih);left-=(ph-40);}
     const fn=(($('addr').value||'property').replace(/[^a-z0-9]+/gi,'_'))+'_DD_report.pdf';
-    pdf.save(fn);btn.textContent=t0;
-  }).catch(e=>{btn.textContent=t0;alert('PDF build failed, opening print instead: '+e.message);window.print();});
+    pdf.save(fn);btn.textContent=t0;hideBusy();
+  }).catch(e=>{btn.textContent=t0;hideBusy();alert('PDF build failed, opening print instead: '+e.message);window.print();});
 }
 function icsDate(v){return v.replace(/-/g,'');}
 function downloadICS(){
