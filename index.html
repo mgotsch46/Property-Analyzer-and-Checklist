@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Property Due-Diligence Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{--blue:#1f4e9c;--ink:#1b2430;--mut:#66707d;--line:#e3e7ee;--bg:#f4f6fa;
-        --card:#fff;--good:#1f8f4e;--warn:#e65100;--bad:#c0392b;--gold:#f4c542;--yel:#fffde7;}
+        --card:#fff;--good:#1f8f4e;--warn:#e65100;--bad:#c0392b;--gold:#f4c542;--yel:#fffde7;--grn:#eef7ee;}
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
   header{background:var(--blue);color:#fff;padding:16px 22px}
@@ -17,7 +19,7 @@
   .card h2{margin:0 0 11px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);border-bottom:2px solid var(--line);padding-bottom:7px}
   label{display:block;font-size:11.5px;color:var(--mut);margin:7px 0 3px;font-weight:600}
   input,select{width:100%;padding:7px 9px;border:1px solid #cdd4de;border-radius:6px;font-size:13.5px;background:#fff}
-  input.calc{background:var(--yel)}
+  input.calc{background:var(--yel)} input[readonly]{background:var(--grn);font-weight:700}
   input:focus,select:focus{outline:none;border-color:var(--blue)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -51,11 +53,8 @@
   .chk{font-size:12.5px;padding:2px 0}
   .chk input{width:auto;margin-right:7px;vertical-align:-1px}
   a.src{color:#1a56c4;font-size:11px}
-  .grp{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 3px}
+  .grp{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 3px}
   .note{font-size:10.5px;color:var(--mut);margin-top:8px;line-height:1.5}
-  .tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:#eef2f9;color:var(--blue);font-weight:700;margin-left:6px}
-  details summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:12px;margin-top:4px}
-  @media print{header,.noprint,.inputs{display:none!important}body{background:#fff;font-size:11px}.wrap{max-width:100%;padding:0}.card{border:none;padding:0;margin:0 0 10px}.rep h3{page-break-after:avoid}}
 </style>
 </head>
 <body>
@@ -65,11 +64,11 @@
 </header>
 <div class="wrap">
   <div class="inputs">
-  <div class="card noprint">
+  <div class="card">
     <h2>1 &middot; Property &amp; Deal Setup</h2>
     <div class="row4">
-      <div><label>Street address</label><input id="addr" value="3326 Ruckle Street" oninput="links()"></div>
-      <div><label>City</label><input id="city" value="Saginaw" oninput="links()"></div>
+      <div><label>Street address</label><input id="addr" value="3326 Ruckle Street"></div>
+      <div><label>City</label><input id="city" value="Saginaw"></div>
       <div><label>State</label><input id="state" value="MI" maxlength="2" style="text-transform:uppercase" oninput="onState()"></div>
       <div><label>ZIP <span class="hint">(auto-state)</span></label><input id="zip" value="48601" oninput="onZip()"></div>
     </div>
@@ -91,11 +90,40 @@
       <div><label>Misc 2 label</label><input id="m2lbl" value="Title commitment" oninput="renderDates()"></div>
     </div>
   </div>
-  <div class="card noprint">
-    <h2>2 &middot; Slow Flip Deal Inputs</h2>
+
+  <div class="card">
+    <h2>2 &middot; Property Tax (Millage) &amp; Insurance Calculators</h2>
+    <div class="grp">Non-homestead property tax &mdash; millage calculator <span class="hint">(rate researched by address on RUN; editable)</span></div>
+    <div class="row4">
+      <div><label>Assessed / market value ($)</label><input id="m_val" class="calc" type="number" value="35000" oninput="millage()"><div class="hint">defaults to purchase price</div></div>
+      <div><label>Non-homestead millage (mills)</label><input id="m_mills" class="calc" type="number" step="0.01" value="50" oninput="millage()"></div>
+      <div><label>MI SEV basis</label><select id="m_sev" class="calc" onchange="millage()"><option value="1">Yes (taxable = 50% value)</option><option value="0">No (taxable = value)</option></select></div>
+      <div><label>Annual property tax</label><input id="m_annual" readonly value="—"></div>
+    </div>
+    <div class="row3">
+      <div><label>Monthly property tax &rarr; deal</label><input id="m_month" readonly value="—"></div>
+      <div style="align-self:end"><a class="src" id="m_link" href="https://treas-secure.state.mi.us/ptestimator" target="_blank">research exact millage &rarr;</a></div>
+      <div></div>
+    </div>
+
+    <div class="grp">Estimated homeowners / landlord insurance</div>
+    <div class="row4">
+      <div><label>Dwelling / ACV coverage ($)</label><input id="in_dwell" class="calc" type="number" value="50000" oninput="insurance()"></div>
+      <div><label>Rate per $1,000 /yr ($)</label><input id="in_rate" class="calc" type="number" step="0.5" value="12" oninput="insurance()"><div class="hint">landlord ACV typ. $8&ndash;18</div></div>
+      <div><label>Liability rider /yr ($)</label><input id="in_liab" class="calc" type="number" value="300" oninput="insurance()"></div>
+      <div><label>Annual premium</label><input id="in_annual" readonly value="—"></div>
+    </div>
+    <div class="row3">
+      <div><label>Monthly insurance &rarr; deal</label><input id="in_month" readonly value="—"></div>
+      <div></div><div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3 &middot; Slow Flip Deal Inputs</h2>
     <div class="grp">Deal</div>
     <div class="row4">
-      <div><label>Purchase price ($)</label><input id="i_price" class="calc" type="number" value="35000" oninput="calc()"></div>
+      <div><label>Purchase price ($)</label><input id="i_price" class="calc" type="number" value="35000" oninput="syncVal();calc()"></div>
       <div><label>Buy closing %</label><input id="i_closepct" class="calc" type="number" step="0.1" value="3.5" oninput="calc()"></div>
       <div><label>Repairs ($)</label><input id="i_repairs" class="calc" type="number" value="0" oninput="calc()"></div>
       <div><label>BOG ($)</label><input id="i_bog" class="calc" type="number" value="0" oninput="calc()"></div>
@@ -111,9 +139,9 @@
       <div><label>PML loan amount ($)</label><input id="i_pmlamt" class="calc" type="number" value="30000" oninput="calc()"></div>
       <div><label>PML interest rate %</label><input id="i_pmlrate" class="calc" type="number" step="0.25" value="12" oninput="calc()"></div>
       <div><label>PML term (months)</label><input id="i_pmlterm" class="calc" type="number" value="60" oninput="calc()"></div>
-      <div><label>PML payment /mo</label><input id="o_pml" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
+      <div><label>PML payment /mo</label><input id="o_pml" readonly value="—"></div>
     </div>
-    <div class="grp">Monthly carry <span class="hint">(tax &amp; insurance auto-fill from property search; editable)</span></div>
+    <div class="grp">Monthly carry <span class="hint">(tax &amp; insurance auto-fill from the calculators above; editable)</span></div>
     <div class="row3">
       <div><label>Property tax /mo ($)</label><input id="i_tax" class="calc" type="number" step="0.01" value="72.92" oninput="calc()"></div>
       <div><label>Insurance /mo ($)</label><input id="i_ins" class="calc" type="number" step="0.01" value="75.00" oninput="calc()"></div>
@@ -128,18 +156,19 @@
       <div><label>Usury state</label><select id="i_ustate" class="calc" onchange="calc()"><option>AL</option><option>FL</option><option>IA</option><option>IL</option><option>IN</option><option selected>MI</option><option>MO</option><option>MS</option><option>ND</option><option>OH</option><option>SD</option><option>WI</option></select></div>
     </div>
     <div class="row2">
-      <div><label>TB loan amount</label><input id="o_tbloan" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
-      <div><label>TB payment /mo</label><input id="o_tbpay" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
+      <div><label>TB loan amount</label><input id="o_tbloan" readonly value="—"></div>
+      <div><label>TB payment /mo</label><input id="o_tbpay" readonly value="—"></div>
     </div>
   </div>
-  <div class="card noprint">
+
+  <div class="card">
     <div class="btnrow">
       <button class="b-run" onclick="runResearch()">&#9654; RUN research for this address</button>
-      <button class="b-pdf" onclick="window.print()">&#8681; Download PDF</button>
+      <button class="b-pdf" onclick="downloadPDF()">&#8681; Download PDF</button>
       <button class="b-cal" onclick="downloadICS()">&#128197; Add dates to calendar</button>
       <button class="b-sec" onclick="openLinks()">Open lookup links</button>
     </div>
-    <div class="note">RUN sends this address to Claude to pull comps, flood, crime, tax/millage, PIN &amp; liens and fill the report (and auto-populate the tax &amp; insurance boxes above). The deal analyzer computes live from your inputs now. Download PDF prints the report only. Calendar file adds an event <b>and</b> a task per date.</div>
+    <div class="note">RUN pulls comps, flood, crime, tax/millage, PIN &amp; liens and fills the report. The tax &amp; insurance calculators feed the deal analyzer. Download PDF saves the report as a real .pdf file. Calendar file adds an event <b>and</b> a task per date.</div>
   </div>
   </div>
 
@@ -154,7 +183,7 @@
     <h3>6 &middot; Taxes, Millage &amp; Liens</h3><div id="rep_tax"></div>
     <h3>7 &middot; Deal Analysis — Slow Flip (live)</h3>
     <div class="kpis" id="rep_kpi"></div><div id="rep_banner"></div>
-    <details><summary>Full deal breakdown</summary><div id="rep_deal"></div></details>
+    <div id="rep_deal"></div>
     <h3>8 &middot; TO-DO Checklist</h3><div id="rep_todo"></div>
     <h3>Sources</h3><div id="rep_src" class="note"></div>
   </div>
@@ -170,7 +199,7 @@ let R = {
   owner:"Robbins, Terry N — Wilder, ID (absentee)",
   listPrice:"$50,000 (listed 6/6/2026, Pending)", mls:"50210465",
   built:"1894", beds:"3", baths:"1", sqft:"935", lot:"0.22 ac", found:"Crawl (no basement)",
-  terms:"Land contract / seller financing",
+  style:"Single family, 1-story Traditional", terms:"Land contract / seller financing",
   listing:"https://www.jpargreatlakesbay.com/property/138-50210465-3326-Ruckle-Street-Saginaw-MI-48601",
   bsa:"https://bsaonline.com/?uid=716",
   rentLow:850, rentMid:1000, rentHigh:1344,
@@ -184,9 +213,7 @@ let R = {
   floodUrl:"https://msc.fema.gov/portal/search?AddressQuery=3326%20Ruckle%20St%20Saginaw%20MI%2048601",
   crime:"CrimeGrade 137 (B-). Violent 72.3 vs 22.7 U.S.; property 66.6 vs 35.4 — elevated, typical east-side Saginaw.",
   crimeUrl:"https://crimegrade.org/safest-places-in-saginaw-mi/",
-  delinquent:"$1,413.74", curTax:"$965/yr ($80.42/mo)", cityLevy:"16.24 mills",
-  totalMills:"~50 mills", projTax:"$875/yr ($72.92/mo) — uncapped @ 50 mills on $35k (SEV $17,500)",
-  taxMonthly:72.92, curTaxMonthly:80.42, insMonthly:75.00,
+  delinquent:"$1,413.74", curTax:"$965/yr ($80.42/mo)", millage:50, value:35000,
   ownwell:"https://www.ownwell.com/trends/michigan/saginaw-county",
   estimator:"https://treas-secure.state.mi.us/ptestimator",
   rod:"https://www.saginawcountymi.gov/departments/register_of_deeds/",
@@ -196,19 +223,37 @@ let R = {
 
 const ZR=[[5,5,'NY'],[6,9,'PR'],[10,27,'MA'],[28,29,'RI'],[30,38,'NH'],[39,49,'ME'],[50,59,'VT'],[60,69,'CT'],[70,89,'NJ'],[100,149,'NY'],[150,196,'PA'],[197,199,'DE'],[200,205,'DC'],[206,219,'MD'],[220,246,'VA'],[247,268,'WV'],[270,289,'NC'],[290,299,'SC'],[300,319,'GA'],[320,349,'FL'],[350,369,'AL'],[370,385,'TN'],[386,397,'MS'],[398,399,'GA'],[400,427,'KY'],[430,459,'OH'],[460,479,'IN'],[480,499,'MI'],[500,528,'IA'],[530,549,'WI'],[550,567,'MN'],[570,577,'SD'],[580,588,'ND'],[590,599,'MT'],[600,629,'IL'],[630,658,'MO'],[660,679,'KS'],[680,693,'NE'],[700,714,'LA'],[716,729,'AR'],[730,749,'OK'],[750,799,'TX'],[800,816,'CO'],[820,831,'WY'],[832,838,'ID'],[840,847,'UT'],[850,865,'AZ'],[870,884,'NM'],[889,898,'NV'],[900,961,'CA'],[967,968,'HI'],[970,979,'OR'],[980,994,'WA'],[995,999,'AK']];
 function zip2st(z){const d=(''+z).replace(/\D/g,'').slice(0,3);if(d.length<3)return'';const n=+d;for(const a of ZR)if(n>=a[0]&&n<=a[1])return a[2];return'';}
-function onZip(){const s=zip2st($('zip').value);if(s){$('state').value=s;$('i_ustate').value=s;}links();}
-function onState(){$('state').value=$('state').value.toUpperCase();links();}
+function onZip(){const s=zip2st($('zip').value);if(s){$('state').value=s;$('i_ustate').value=s;$('m_sev').value=(s==='MI')?'1':'0';millage();}}
+function onState(){$('state').value=$('state').value.toUpperCase();}
+function syncVal(){ $('m_val').value=$('i_price').value; millage(); }
 function amort(P,ratePct,n){const r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:0;return P*r/(1-Math.pow(1+r,-n));}
 
+/* ---- millage & insurance calculators ---- */
+function millage(){
+  const val=+$('m_val').value||0, mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
+  const taxable = sev ? val*0.5 : val;
+  const annual = taxable*mills/1000, mo=annual/12;
+  $('m_annual').value=money(annual); $('m_month').value=money2(mo);
+  $('i_tax').value=mo.toFixed(2);
+  calc();
+}
+function insurance(){
+  const d=+$('in_dwell').value||0, r=+$('in_rate').value||0, li=+$('in_liab').value||0;
+  const annual=Math.max(0, d/1000*r+li), mo=annual/12;
+  $('in_annual').value=money(annual); $('in_month').value=money2(mo);
+  $('i_ins').value=mo.toFixed(2);
+  calc();
+}
+
+/* ---- Slow Flip calc (exact replica, two-phase) ---- */
 function deal(){
-  const d={
-    purchasePrice:+$('i_price').value||0, buyClosingPct:+$('i_closepct').value||0,
-    initialRepairs:+$('i_repairs').value||0, bogCosts:+$('i_bog').value||0, upfrontInsurance:+$('i_upins').value||0,
-    fundingType:$('i_funding').value, pmlLoanAmount:+$('i_pmlamt').value||0, pmlRate:+$('i_pmlrate').value||0,
-    pmlTermMonths:+$('i_pmlterm').value||0, oppPct:+$('i_opp').value||0,
-    propTax:+$('i_tax').value||0, insurance:+$('i_ins').value||0, legal:+$('i_legal').value||0,
-    tbSale:+$('i_tbsale').value||0, tbDown:+$('i_tbdown').value||0, tbRate:+$('i_tbrate').value||0,
-    tbTerm:+$('i_tbterm').value||360, state:$('i_ustate').value };
+  const d={purchasePrice:+$('i_price').value||0,buyClosingPct:+$('i_closepct').value||0,
+    initialRepairs:+$('i_repairs').value||0,bogCosts:+$('i_bog').value||0,upfrontInsurance:+$('i_upins').value||0,
+    fundingType:$('i_funding').value,pmlLoanAmount:+$('i_pmlamt').value||0,pmlRate:+$('i_pmlrate').value||0,
+    pmlTermMonths:+$('i_pmlterm').value||0,oppPct:+$('i_opp').value||0,
+    propTax:+$('i_tax').value||0,insurance:+$('i_ins').value||0,legal:+$('i_legal').value||0,
+    tbSale:+$('i_tbsale').value||0,tbDown:+$('i_tbdown').value||0,tbRate:+$('i_tbrate').value||0,
+    tbTerm:+$('i_tbterm').value||360,state:$('i_ustate').value};
   const buyClosing=d.purchasePrice*d.buyClosingPct/100;
   const down=d.fundingType==='PML'?Math.max(d.purchasePrice-d.pmlLoanAmount,0):d.purchasePrice;
   const cashInvested=down+buyClosing+d.initialRepairs+d.bogCosts+d.upfrontInsurance;
@@ -216,97 +261,103 @@ function deal(){
   const oppMo=d.fundingType==='Self-Funded'?cashInvested*d.oppPct/100/12:0;
   const carry=d.propTax+d.insurance+d.legal;
   const outflow=d.fundingType==='PML'?carry+pmlPay:carry+oppMo;
-  const tbLoan=d.tbSale-d.tbDown;
-  const tbPay=amort(tbLoan,d.tbRate,d.tbTerm);
-  const profitPML=d.fundingType==='PML'?tbPay-carry-pmlPay:tbPay-carry;
-  const profit6=tbPay-carry;
-  const profit=profitPML;
-  const margin=tbPay>0?profit/tbPay*100:0;
+  const tbLoan=d.tbSale-d.tbDown, tbPay=amort(tbLoan,d.tbRate,d.tbTerm);
+  const profit1=d.fundingType==='PML'?tbPay-carry-pmlPay:tbPay-carry;
+  const profit2=tbPay-carry;
+  const margin1=tbPay>0?profit1/tbPay*100:0, margin2=tbPay>0?profit2/tbPay*100:0;
   const netCash=Math.max(cashInvested-d.tbDown,0);
-  const coc=netCash>0?profit*12/netCash*100:0;
+  const coc1=netCash>0?profit1*12/netCash*100:0, coc2=netCash>0?profit2*12/netCash*100:0;
   const totalRecv=tbPay*d.tbTerm+d.tbDown;
   const pmlDebt=d.fundingType==='PML'?pmlPay*d.pmlTermMonths:0;
   const pmlPayoff=d.fundingType==='PML'?d.pmlLoanAmount:0;
   const projProfit=totalRecv-cashInvested-(carry*d.tbTerm)-pmlDebt-pmlPayoff;
   const projROI=cashInvested>0?projProfit/cashInvested*100:0;
+  const payoffYear=Math.ceil(d.pmlTermMonths/12)+1, tbYears=Math.round(d.tbTerm/12);
   let status;
-  if(d.fundingType==='PML'){
-    if(profitPML<0||profit6<0)status='NEGATIVE';
-    else if(profitPML>=0&&profit6>=500)status='STRONG'; else status='TIGHT';
-  }else{ status=profit<0?'NEGATIVE':(profit>=500?'STRONG':'TIGHT'); }
+  if(d.fundingType==='PML'){ status=(profit1<0||profit2<0)?'NEGATIVE':((profit1>=0&&profit2>=500)?'STRONG':'TIGHT'); }
+  else{ status=profit1<0?'NEGATIVE':(profit1>=500?'STRONG':'TIGHT'); }
   const caps={IL:null,MI:11,OH:25,ND:null,SD:null,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null};
   const cap=caps[d.state]!==undefined?caps[d.state]:null; const usuryOK=cap===null?true:d.tbRate<=cap;
-  return {d,buyClosing,cashInvested,pmlPay,oppMo,carry,outflow,tbLoan,tbPay,profit,profit6,margin,netCash,coc,projProfit,projROI,status,usuryOK,cap};
+  return {d,buyClosing,cashInvested,pmlPay,oppMo,carry,outflow,tbLoan,tbPay,netCash,
+    profit1,profit2,margin1,margin2,coc1,coc2,projProfit,projROI,status,usuryOK,cap,payoffYear,tbYears};
 }
-
 function calc(){
   const c=deal();
-  if($('o_pml')) $('o_pml').value=money2(c.pmlPay);
-  if($('o_tbloan')) $('o_tbloan').value=money(c.tbLoan);
-  if($('o_tbpay')) $('o_tbpay').value=money2(c.tbPay);
+  if($('o_pml'))$('o_pml').value=money2(c.pmlPay);
+  if($('o_tbloan'))$('o_tbloan').value=money(c.tbLoan);
+  if($('o_tbpay'))$('o_tbpay').value=money2(c.tbPay);
   $('rep_kpi').innerHTML=[
-    ['Monthly profit',money2(c.profit),c.profit>=500?'g':c.profit>=0?'w':'b'],
-    ['Cash-on-cash',pct(c.coc,0),c.coc>=10?'g':c.coc>=6?'w':'b'],
+    ['Monthly profit',money2(c.profit1),c.profit1>=500?'g':c.profit1>=0?'w':'b'],
+    ['Cash-on-cash',pct(c.coc1,0),c.coc1>=10?'g':c.coc1>=6?'w':'b'],
     ['Cash invested',money(c.cashInvested),''],
     ['Proj. ROI',pct(c.projROI,0),c.projROI>=100?'g':'w']
   ].map(k=>'<div class="kpi"><div class="v '+k[2]+'">'+k[1]+'</div><div class="k">'+k[0]+'</div></div>').join('');
   const b=$('rep_banner');
   b.className='banner '+(c.status==='STRONG'?'ok':c.status==='TIGHT'?'mid':'no');
-  b.textContent=(c.status==='STRONG'?'✅':c.status==='TIGHT'?'⚠️':'❌')+' Deal Status: '+c.status+' — '+money2(c.profit)+'/mo';
-  let u='';
-  if(!c.usuryOK) u='<div class="flag">&#9873; <b>Usury ('+c.d.state+'): FAIL</b> — TB rate '+c.d.tbRate+'% exceeds the '+c.cap+'% cap. Lower the tenant-buyer rate to &le;'+c.cap+'% before executing.</div>';
-  $('rep_deal').innerHTML='<table>'
-    +'<tr><td>Buy closing ('+c.d.buyClosingPct+'%)</td><td class="r">'+money2(c.buyClosing)+'</td></tr>'
-    +'<tr><td>Cash invested</td><td class="r">'+money2(c.cashInvested)+'</td></tr>'
-    +'<tr><td>Net cash invested</td><td class="r">'+money2(c.netCash)+'</td></tr>'
-    +'<tr><td>Opportunity cost /mo</td><td class="r">'+money2(c.oppMo)+'</td></tr>'
-    +'<tr><td>PML payment /mo</td><td class="r">'+money2(c.pmlPay)+'</td></tr>'
-    +'<tr><td>Total carry /mo</td><td class="r">'+money2(c.carry)+'</td></tr>'
-    +'<tr><td>Monthly outflow</td><td class="r">'+money2(c.outflow)+'</td></tr>'
-    +'<tr><td>TB loan / payment</td><td class="r">'+money(c.tbLoan)+' / '+money2(c.tbPay)+'</td></tr>'
-    +'<tr><td>Monthly profit</td><td class="r"><b>'+money2(c.profit)+'</b></td></tr>'
-    +'<tr><td>Monthly margin</td><td class="r">'+pct(c.margin)+'</td></tr>'
-    +'<tr><td>Cash-on-cash</td><td class="r">'+pct(c.coc)+'</td></tr>'
-    +'<tr><td>Projected profit (TB term)</td><td class="r">'+money(c.projProfit)+'</td></tr>'
-    +'<tr><td>Projected ROI</td><td class="r">'+pct(c.projROI,0)+'</td></tr>'
-    +'<tr><td>Usury ('+c.d.state+')</td><td class="r">'+(c.usuryOK?'✓ OK':'✗ FAIL ('+c.cap+'% cap)')+'</td></tr>'
-    +'</table>'+u;
+  b.textContent=(c.status==='STRONG'?'✅':c.status==='TIGHT'?'⚠️':'❌')+' Deal Status: '+c.status;
+  const pml=c.d.fundingType==='PML';
+  const p1lab=pml?('Yr 1–'+(c.payoffYear-1)+' (PML active)'):'Ongoing';
+  const p2lab=pml?('Yr '+c.payoffYear+'–'+c.tbYears+' (PML paid off)'):'—';
+  let rows=''
+    +row('Buy closing ('+c.d.buyClosingPct+'%)',money2(c.buyClosing))
+    +row('Cash invested',money2(c.cashInvested))
+    +row('Net cash invested (TB down returned)',money2(c.netCash))
+    +row('Opportunity cost /mo',money2(c.oppMo))
+    +row('PML payment /mo',money2(c.pmlPay))
+    +row('Total carry /mo',money2(c.carry))
+    +row('Monthly outflow',money2(c.outflow))
+    +row('TB loan / payment',money(c.tbLoan)+' / '+money2(c.tbPay))
+    +row('<b>Monthly profit — '+p1lab+'</b>','<b>'+money2(c.profit1)+'</b>')
+    +(pml?row('Monthly profit — '+p2lab,money2(c.profit2)):'')
+    +row('Monthly margin — '+p1lab,pct(c.margin1))
+    +(pml?row('Monthly margin — '+p2lab,pct(c.margin2)):'')
+    +row('Cash-on-cash — '+p1lab,pct(c.coc1))
+    +(pml?row('Cash-on-cash — '+p2lab,pct(c.coc2)):'')
+    +row('Projected profit (TB term)',money(c.projProfit))
+    +row('Projected ROI (TB term)',pct(c.projROI,0))
+    +row('Usury ('+c.d.state+')',c.usuryOK?'✓ OK':'✗ FAIL ('+c.cap+'% cap)');
+  let u=c.usuryOK?'':'<div class="flag">&#9873; <b>Usury ('+c.d.state+'): FAIL</b> — TB rate '+c.d.tbRate+'% exceeds the '+c.cap+'% cap. Lower to &le;'+c.cap+'%.</div>';
+  $('rep_deal').innerHTML='<table>'+rows+'</table>'+u;
 }
+function row(k,v){return '<tr><td>'+k+'</td><td class="r">'+v+'</td></tr>';}
 
 function fullAddr(){return [$('addr').value,$('city').value,$('state').value,$('zip').value].filter(Boolean).join(', ');}
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-function applyResearchToDeal(){ if($('i_tax'))$('i_tax').value=R.taxMonthly; if($('i_ins'))$('i_ins').value=R.insMonthly; }
+function esc(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
 function renderReport(){
-  applyResearchToDeal();
   $('rep_head').innerHTML='<table>'
     +'<tr><td><b>Property</b></td><td>'+esc(fullAddr())+'</td><td><b>Deal type</b></td><td>'+esc($('dealtype').value)+'</td></tr>'
     +'<tr><td><b>Parcel (PIN)</b></td><td>'+esc(R.pin)+'</td><td><b>MLS #</b></td><td>'+esc(R.mls)+'</td></tr>'
     +'<tr><td><b>Legal</b></td><td>'+esc(R.legal)+'</td><td><b>List price</b></td><td>'+esc(R.listPrice)+'</td></tr></table>';
   $('rep_prop').innerHTML='<table>'
-    +'<tr><td>Beds/baths</td><td>'+R.beds+'/'+R.baths+'</td><td>Sq ft</td><td>'+R.sqft+'</td><td>Built</td><td>'+R.built+'</td></tr>'
-    +'<tr><td>Lot</td><td>'+R.lot+'</td><td>Foundation</td><td>'+R.found+'</td><td>Terms</td><td><b>'+esc(R.terms)+'</b></td></tr>'
+    +'<tr><td>Style</td><td colspan="5">'+esc(R.style)+'</td></tr>'
+    +'<tr><td>Beds/baths</td><td>'+esc(R.beds)+'/'+esc(R.baths)+'</td><td>Sq ft</td><td>'+esc(R.sqft)+'</td><td>Built</td><td>'+esc(R.built)+'</td></tr>'
+    +'<tr><td>Lot</td><td>'+esc(R.lot)+'</td><td>Foundation</td><td>'+esc(R.found)+'</td><td>Terms</td><td><b>'+esc(R.terms)+'</b></td></tr>'
     +'<tr><td>Owner</td><td colspan="5">'+esc(R.owner)+'</td></tr></table>'
     +'<div class="note">Source: <a class="src" href="'+R.listing+'" target="_blank">listing/MLS</a> &middot; <a class="src" href="'+R.bsa+'" target="_blank">county assessor (BS&A)</a></div>';
-  let rc='<table><tr><th>Source</th><th class="r">Figure</th><th class="r">Link</th></tr>'
-    +R.rentComps.map(c=>'<tr><td>'+esc(c[0])+'</td><td class="r">'+c[1]+'</td><td class="r"><a class="src" href="'+c[2]+'" target="_blank">open</a></td></tr>').join('')+'</table>';
-  rc+='<table style="margin-top:6px"><tr><th>Low</th><th class="r">Middle</th><th class="r">High (Sec 8 ceiling)</th></tr>'
-    +'<tr><td>'+money(R.rentLow)+'/mo</td><td class="r">'+money(R.rentMid)+'/mo</td><td class="r">'+money(R.rentHigh)+'/mo</td></tr></table>'
-    +'<div class="note">Low = bottom-of-market for a small unit needing work; Middle = typical achievable; High = HUD FMR / Section 8 ceiling.</div>';
+  let rc='<table><tr><th>Source</th><th class="r">Figure</th><th class="r">Link</th></tr>';
+  if(R.rentComps.length) rc+=R.rentComps.map(c=>'<tr><td>'+esc(c[0])+'</td><td class="r">'+c[1]+'</td><td class="r"><a class="src" href="'+c[2]+'" target="_blank">open</a></td></tr>').join('');
+  else rc+='<tr><td colspan="3">No automated comps (add RentCast key or look up manually) — <a class="src" href="'+R.rento+'" target="_blank">Rentometer</a></td></tr>';
+  rc+='</table><table style="margin-top:6px"><tr><th>Low</th><th class="r">Middle</th><th class="r">High (Sec 8 ceiling)</th></tr>'
+    +'<tr><td>'+money(R.rentLow)+'/mo</td><td class="r">'+money(R.rentMid)+'/mo</td><td class="r">'+money(R.rentHigh)+'/mo</td></tr></table>';
   $('rep_rent').innerHTML=rc;
-  $('rep_sale').innerHTML='<table><tr><th>Bd/Ba</th><th>Size</th><th class="r">Price</th><th class="r">Status</th></tr>'
-    +R.saleComps.map(c=>'<tr><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="r">'+c[2]+'</td><td class="r">'+c[3]+'</td></tr>').join('')+'</table>';
+  let sc='<table><tr><th>Bd/Ba</th><th>Size</th><th class="r">Price</th><th class="r">Status</th></tr>';
+  if(R.saleComps.length) sc+=R.saleComps.map(c=>'<tr><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="r">'+c[2]+'</td><td class="r">'+c[3]+'</td></tr>').join('');
+  else sc+='<tr><td colspan="4">No automated sale comps — look up on the listing site / county</td></tr>';
+  $('rep_sale').innerHTML=sc+'</table>';
   $('rep_fc').innerHTML='<table>'
     +'<tr><td><b>Flood (FEMA)</b></td><td>'+esc(R.flood)+' <a class="src" href="'+R.floodUrl+'" target="_blank">verify</a></td></tr>'
     +'<tr><td><b>Crime</b></td><td>'+esc(R.crime)+' <a class="src" href="'+R.crimeUrl+'" target="_blank">verify</a></td></tr></table>';
+  const c=deal();
   $('rep_tax').innerHTML='<table>'
-    +'<tr><td><b>&#9873; Delinquent taxes owed</b></td><td class="r"><b>'+R.delinquent+'</b></td><td class="r"><a class="src" href="'+R.bsa+'" target="_blank">assessor</a></td></tr>'
-    +'<tr><td>Current annual tax (fed as $'+R.curTaxMonthly.toFixed(2)+'/mo option)</td><td class="r">'+R.curTax+'</td><td class="r"><a class="src" href="'+R.listing+'" target="_blank">MLS</a></td></tr>'
-    +'<tr><td>Est. total non-homestead millage</td><td class="r">'+R.totalMills+'</td><td class="r"><a class="src" href="'+R.ownwell+'" target="_blank">Ownwell</a></td></tr>'
-    +'<tr><td colspan="3">Fed to deal analyzer &rarr; tax <b>$'+R.taxMonthly.toFixed(2)+'/mo</b> (uncapped projection), insurance <b>$'+R.insMonthly.toFixed(2)+'/mo</b>. '+esc(R.projTax)+'</td></tr></table>'
-    +'<div class="flag">&#9873; The '+R.delinquent+' delinquent balance is a lien — clear at/after closing or net it against your offer.</div>';
+    +'<tr><td><b>&#9873; Delinquent taxes owed</b></td><td class="r"><b>'+esc(R.delinquent)+'</b></td><td class="r"><a class="src" href="'+R.bsa+'" target="_blank">assessor</a></td></tr>'
+    +'<tr><td>Current annual tax (on record)</td><td class="r">'+esc(R.curTax)+'</td><td class="r"><a class="src" href="'+R.listing+'" target="_blank">MLS</a></td></tr>'
+    +'<tr><td>Non-homestead millage used</td><td class="r">'+esc(R.millage)+' mills</td><td class="r"><a class="src" href="'+R.estimator+'" target="_blank">estimator</a></td></tr>'
+    +'<tr><td>Millage-calc property tax &rarr; deal</td><td class="r">'+$('m_annual').value+'/yr ('+$('m_month').value+'/mo)</td><td class="r"></td></tr>'
+    +'<tr><td>Estimated insurance &rarr; deal</td><td class="r">'+$('in_annual').value+'/yr ('+$('in_month').value+'/mo)</td><td class="r"></td></tr></table>'
+    +'<div class="flag">&#9873; Delinquent balance is a lien — clear at/after closing or net it against your offer. Confirm exact SEV/taxable value &amp; millage on the county assessor.</div>';
   renderDates(); renderTodo();
-  $('rep_src').innerHTML=['listing','bsa','floodUrl','ownwell','estimator','crimeUrl'].map(k=>'<a class="src" href="'+R[k]+'" target="_blank">'+R[k].replace(/^https?:\/\//,'').split('/')[0]+'</a>').join(' &middot; ');
+  $('rep_src').innerHTML=['listing','bsa','floodUrl','ownwell','estimator','crimeUrl'].map(k=>R[k]?'<a class="src" href="'+R[k]+'" target="_blank">'+R[k].replace(/^https?:\/\//,'').split('/')[0]+'</a>':'').filter(Boolean).join(' &middot; ');
   calc();
 }
 function dfmt(v){if(!v)return '—';const p=v.split('-');return p[1]+'/'+p[2]+'/'+p[0];}
@@ -317,7 +368,7 @@ function renderDates(){
   $('rep_dates').innerHTML='<table><tr>'+dateItems().map(d=>'<th>'+esc(d[0])+'</th>').join('')+'</tr><tr>'+dateItems().map(d=>'<td>'+dfmt(d[1])+'</td>').join('')+'</tr></table>';
 }
 function renderTodo(){
-  const A=[['BS&A: verify parcel / PIN, SEV & taxable value',R.bsa],['BS&A: confirm delinquent-tax payoff ('+R.delinquent+') & liens',R.bsa],['MLS: verify listing details (beds/baths/price/status)',R.listing],['Chain of title / open mortgages',R.rod],['Water / sewer / city liens',R.city],['Blight / code / condemnation',R.city],['Address-level rent comp',R.rento],['Fix TB rate to usury cap if flagged','']];
+  const A=[['BS&A: verify parcel / PIN, SEV & taxable value',R.bsa],['BS&A: confirm delinquent-tax payoff ('+R.delinquent+') & liens',R.bsa],['MLS: verify listing details (beds/baths/price/status)',R.listing],['Chain of title / open mortgages',R.rod],['Water / sewer / city liens',R.city],['Blight / code / condemnation',R.city],['Address-level rent comp',R.rento],['Confirm non-homestead millage rate',R.estimator],['Fix TB rate to usury cap if flagged','']];
   const B=['BOG initial walkthrough','Roof','Foundation','Dry basement','No leaking ceiling','Plumbing','Electrical','HVAC','Water heater','Kitchen','Bathroom','Windows'];
   const C=['Tenant in place? If yes, get name for eviction search','Obtain current lease','Obtain rent roll'];
   const D=['Final walkthrough (BOG)','Obtain property insurance','Review preliminary title','Review Settlement Statement','Wire sent'];
@@ -327,65 +378,69 @@ function renderTodo(){
     +'<div class="grp">C &middot; Tenants &amp; occupancy</div>'+C.map(x=>ck(x)).join('')
     +'<div class="grp">D &middot; Closing</div>'+D.map(x=>ck(x)).join('');
 }
-function links(){}
 function openLinks(){
-  const q=encodeURIComponent(fullAddr()), st=$('state').value.toUpperCase(), zip=$('zip').value.replace(/\D/g,'').slice(0,5);
+  const q=encodeURIComponent(fullAddr()),st=$('state').value.toUpperCase(),zip=$('zip').value.replace(/\D/g,'').slice(0,5);
   ['https://www.google.com/maps/search/?api=1&query='+q,'https://www.zillow.com/homes/'+q+'_rb/','https://app.rentcast.io/app?address='+q,'https://publicrecords.netronline.com/state/'+st,'https://msc.fema.gov/portal/search?AddressQuery='+q,'https://crimegrade.org/safest-places-in-'+zip+'/'].forEach(u=>window.open(u,'_blank'));
 }
 function applyResearch(x){
-  const num=(v,f)=>(v===null||v===undefined||isNaN(v))?f:+v;
-  R.pin = x.pin || '(confirm on county records)';
-  R.owner = x.owner || '(confirm on county records)';
-  R.beds = x.beds||'—'; R.baths = x.baths||'—'; R.sqft = x.sqft||'—';
-  R.built = x.built||'—'; R.lot = x.lot||'—'; R.found='—';
-  R.legal='(confirm on county records)'; R.terms='(verify listing)';
-  R.listPrice='(verify listing)'; R.mls='(verify listing)';
-  R.listing = x.listingSearchUrl || 'https://www.google.com/search?q='+encodeURIComponent(fullAddr());
-  R.bsa = x.countyRecordsUrl; R.rod = x.countyRecordsUrl; R.city = x.countyRecordsUrl;
-  R.rento = x.rentcastUrl; R.ownwell = x.countyRecordsUrl; R.estimator = x.countyRecordsUrl;
-  R.flood = x.flood || '(FEMA lookup failed — verify manually)'; R.floodUrl = x.floodUrl;
-  R.crime = x.crime || '(no automated crime source — check link)'; R.crimeUrl = x.crimeUrl;
-  R.rentComps = (x.rentMid)?[['RentCast AVM (address)', '$'+x.rentMid+'/mo', x.rentcastUrl]]:[];
-  R.rentLow=num(x.rentLow,0); R.rentMid=num(x.rentMid,0); R.rentHigh=num(x.rentHigh,0);
-  R.saleComps=[];
-  R.delinquent='(confirm on county records)'; R.cityLevy='(state-specific — confirm)';
-  R.totalMills='(state-specific — confirm)'; R.projTax='(confirm on county records)';
-  R.curTax = x.taxAnnual?('$'+x.taxAnnual+'/yr'):'(confirm)';
-  R.taxMonthly=num(x.taxMonthly,0); R.curTaxMonthly=num(x.taxMonthly,0); R.insMonthly=num(x.insMonthly,75);
-  if(x.needsConfirm && x.needsConfirm.length){ R._needs = x.needsConfirm; }
-  renderReport();
+  const set=(k,v)=>{if(v!==null&&v!==undefined&&v!=='')R[k]=v;};
+  set('pin',x.pin); set('owner',x.owner); set('beds',x.beds); set('baths',x.baths); set('sqft',x.sqft);
+  set('built',x.built); set('lot',x.lot);
+  R.flood=x.flood||R.flood; R.floodUrl=x.floodUrl||R.floodUrl;
+  R.crime=x.crime||'(no automated crime source — check link)'; R.crimeUrl=x.crimeUrl||R.crimeUrl;
+  if(x.rentMid){R.rentLow=x.rentLow;R.rentMid=x.rentMid;R.rentHigh=x.rentHigh;R.rentComps=[['RentCast AVM (address)','$'+x.rentMid+'/mo',x.rentcastUrl]];}
+  if(x.countyRecordsUrl){R.bsa=x.countyRecordsUrl;R.rod=x.countyRecordsUrl;R.city=x.countyRecordsUrl;}
+  if(x.listingSearchUrl)R.listing=x.listingSearchUrl;
+  if(x.taxAnnual)R.curTax='$'+x.taxAnnual+'/yr';
+  if(x.millage){R.millage=x.millage;$('m_mills').value=x.millage;}
+  if(x.taxMonthly){$('i_tax').value=(+x.taxMonthly).toFixed(2);}
+  if(x.insMonthly){$('i_ins').value=(+x.insMonthly).toFixed(2);}
+  if(x.pin) R.legal=R.legal; // keep legal if provided elsewhere
+  millage(); insurance(); renderReport();
 }
 function runResearch(){
   const payload={address:$('addr').value,city:$('city').value,state:$('state').value,zip:$('zip').value};
-  const hosted = location.protocol==='http:'||location.protocol==='https:';
+  const hosted=location.protocol==='http:'||location.protocol==='https:';
   if(hosted){
-    const btn=document.querySelector('.b-run'); const t0=btn.textContent; btn.textContent='Running research…';
+    const btn=document.querySelector('.b-run');const t0=btn.textContent;btn.textContent='Running research…';
     fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(r=>r.json()).then(d=>{ btn.textContent=t0; if(d.error){alert('Research error: '+d.error);return;} applyResearch(d);
-        if(!d.rentcastActive){/* running on free sources only */} })
-      .catch(e=>{ btn.textContent=t0; alert('Could not reach research server: '+e.message); });
+      .then(r=>r.json()).then(d=>{btn.textContent=t0;if(d.error){alert('Research error: '+d.error);return;}applyResearch(d);})
+      .catch(e=>{btn.textContent=t0;alert('Could not reach research server: '+e.message);});
     return;
   }
-  const msg='Run full due-diligence and refill the report for: '+fullAddr()+'. Deal type: '+$('dealtype').value+'. Pull comps (low/mid/high), FEMA flood, crime, tax/millage, PIN, legal, and any liens; auto-fill the deal analyzer property tax and insurance from the search; use my Slow Flip inputs as entered.';
-  if(window.sendPrompt){window.sendPrompt(msg);}
-  else{navigator.clipboard.writeText(msg).then(()=>alert('Copied a RUN request to your clipboard — paste it to Claude in chat:\n\n'+msg));}
+  const msg='Run full due-diligence and refill the report for: '+fullAddr()+'. Deal type: '+$('dealtype').value+'. Pull comps (low/mid/high), FEMA flood, crime, non-homestead millage, tax, PIN, legal, and any liens; use my Slow Flip inputs.';
+  if(window.sendPrompt){window.sendPrompt(msg);}else{navigator.clipboard.writeText(msg).then(()=>alert('Copied a RUN request — paste to Claude:\n\n'+msg));}
+}
+
+/* ---- real PDF download via jsPDF + html2canvas ---- */
+function downloadPDF(){
+  const el=$('report');
+  if(!window.jspdf||!window.html2canvas){window.print();return;}
+  const btn=document.querySelector('.b-pdf');const t0=btn.textContent;btn.textContent='Building PDF…';
+  html2canvas(el,{scale:2,backgroundColor:'#ffffff',windowWidth:el.scrollWidth}).then(canvas=>{
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','pt','letter');
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+    const iw=pw-40, ih=canvas.height*iw/canvas.width;
+    let left=ih, pos=20;const img=canvas.toDataURL('image/png');
+    pdf.addImage(img,'PNG',20,pos,iw,ih);left-=(ph-40);
+    while(left>0){pdf.addPage();pos=20-(ih-left)-20;pdf.addImage(img,'PNG',20,pos,iw,ih);left-=(ph-40);}
+    const fn=(($('addr').value||'property').replace(/[^a-z0-9]+/gi,'_'))+'_DD_report.pdf';
+    pdf.save(fn);btn.textContent=t0;
+  }).catch(e=>{btn.textContent=t0;alert('PDF build failed, opening print instead: '+e.message);window.print();});
 }
 function icsDate(v){return v.replace(/-/g,'');}
 function downloadICS(){
-  const items=dateItems().filter(d=>d[1]);
-  if(!items.length){alert('Enter at least one date first.');return;}
-  const prop=fullAddr(); const now=new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
-  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//RenewEQ//DD//EN\r\nCALSCALE:GREGORIAN\r\n';
-  items.forEach((d,i)=>{
-    const dt=icsDate(d[1]); const uid=Date.now()+'-'+i; const title=d[0]+' — '+prop;
-    ics+='BEGIN:VEVENT\r\nUID:evt-'+uid+'@renew\r\nDTSTAMP:'+now+'\r\nDTSTART;VALUE=DATE:'+dt+'\r\nDTEND;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nDESCRIPTION:RenewEQ due-diligence date for '+prop+'\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:'+title+'\r\nEND:VALARM\r\nEND:VEVENT\r\n';
-    ics+='BEGIN:VTODO\r\nUID:todo-'+uid+'@renew\r\nDTSTAMP:'+now+'\r\nDUE;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nSTATUS:NEEDS-ACTION\r\nEND:VTODO\r\n';
-  });
+  const items=dateItems().filter(d=>d[1]);if(!items.length){alert('Enter at least one date first.');return;}
+  const prop=fullAddr();const now=new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//DD//EN\r\nCALSCALE:GREGORIAN\r\n';
+  items.forEach((d,i)=>{const dt=icsDate(d[1]);const uid=Date.now()+'-'+i;const title=d[0]+' — '+prop;
+    ics+='BEGIN:VEVENT\r\nUID:evt-'+uid+'@dd\r\nDTSTAMP:'+now+'\r\nDTSTART;VALUE=DATE:'+dt+'\r\nDTEND;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:'+title+'\r\nEND:VALARM\r\nEND:VEVENT\r\n';
+    ics+='BEGIN:VTODO\r\nUID:todo-'+uid+'@dd\r\nDTSTAMP:'+now+'\r\nDUE;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nSTATUS:NEEDS-ACTION\r\nEND:VTODO\r\n';});
   ics+='END:VCALENDAR\r\n';
-  const blob=new Blob([ics],{type:'text/calendar'}); const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='renew_dd_dates.ics'; a.click();
+  const blob=new Blob([ics],{type:'text/calendar'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='dd_dates.ics';a.click();
 }
-renderReport();
+millage(); insurance(); renderReport();
 </script>
 </body>
 </html>
