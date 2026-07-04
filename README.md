@@ -1,4 +1,4 @@
-# RenewEQ — Property Due-Diligence App
+# Property Due-Diligence App
 
 One-click property research + Slow Flip deal analyzer + PDF export.
 Front-end is served by a small Node/Express backend. The **RUN** button
