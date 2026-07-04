@@ -412,9 +412,6 @@ function applyResearch(x){
   if(x.taxMonthly!=null) $('i_tax').value=(+x.taxMonthly).toFixed(2);
   if(x.insMonthly!=null) $('i_ins').value=(+x.insMonthly).toFixed(2);
   millage(); insurance(); renderReport();
-  if(!x.rentcastActive){
-    alert('Research complete for '+fullAddr()+'.\n\nAuto-pulled: address/county + FEMA flood zone.\nMISSING (no API without a RentCast key, or no API at all): MLS/list price, legal description, parcel/PIN, comps, tax, liens, millage, crime. These now show \'look up\' with links in the report. Enter the non-homestead millage in the calculator to get property tax.');
-  }
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
 }
 function runResearch(){
