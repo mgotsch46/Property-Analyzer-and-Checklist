@@ -1,0 +1,10 @@
+{
+  "name": "renew-dd-app",
+  "version": "1.0.0",
+  "description": "RenewEQ Property Due-Diligence tool — one-click research + Slow Flip deal analyzer + PDF",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "express": "^4.19.2" }
+}

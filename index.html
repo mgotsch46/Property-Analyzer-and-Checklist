@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RenewEQ — Property Due-Diligence Tool</title>
+<style>
+  :root{--blue:#1f4e9c;--ink:#1b2430;--mut:#66707d;--line:#e3e7ee;--bg:#f4f6fa;
+        --card:#fff;--good:#1f8f4e;--warn:#e65100;--bad:#c0392b;--gold:#f4c542;--yel:#fffde7;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  header{background:var(--blue);color:#fff;padding:16px 22px}
+  header h1{margin:0;font-size:19px;font-weight:700}
+  header p{margin:3px 0 0;font-size:12.5px;opacity:.85}
+  .wrap{max-width:1150px;margin:0 auto;padding:16px 16px 70px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 16px 17px;margin-bottom:15px}
+  .card h2{margin:0 0 11px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);border-bottom:2px solid var(--line);padding-bottom:7px}
+  label{display:block;font-size:11.5px;color:var(--mut);margin:7px 0 3px;font-weight:600}
+  input,select{width:100%;padding:7px 9px;border:1px solid #cdd4de;border-radius:6px;font-size:13.5px;background:#fff}
+  input.calc{background:var(--yel)}
+  input:focus,select:focus{outline:none;border-color:var(--blue)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .row4{display:grid;grid-template-columns:2fr 1.3fr .7fr 1fr;gap:10px}
+  .row5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:760px){.row3,.row4,.row5{grid-template-columns:1fr 1fr}}
+  .hint{font-size:10.5px;color:var(--mut);margin-top:2px}
+  .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0}
+  button,.btn{border:0;padding:10px 16px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer}
+  .b-run{background:var(--gold);color:#3a2f00;font-size:15px;padding:12px 22px}
+  .b-pdf{background:var(--blue);color:#fff}.b-cal{background:#0b8043;color:#fff}.b-sec{background:#eef1f6;color:var(--ink)}
+  button:hover{filter:brightness(1.06)}
+  .rep h3{font-size:12.5px;color:var(--blue);text-transform:uppercase;letter-spacing:.03em;margin:14px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+  th{background:var(--blue);color:#fff;font-size:11px;text-align:left;padding:5px 7px}
+  td{padding:5px 7px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:6px}
+  @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{background:#f7f9fc;border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+  .kpi .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+  .kpi .k{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+  .g{color:var(--good)}.w{color:var(--warn)}.b{color:var(--bad)}
+  .banner{margin-top:10px;padding:9px 13px;border-radius:8px;font-weight:700;font-size:13px}
+  .ok{background:#e9f7ef;color:var(--good);border:1px solid #bfe6cd}
+  .mid{background:#fff3e0;color:var(--warn);border:1px solid #f0dcb8}
+  .no{background:#fbeae8;color:var(--bad);border:1px solid #eec7c2}
+  .flag{background:#fffbe9;border:1px solid #efe0a8;border-radius:8px;padding:9px 12px;margin-top:9px;font-size:12px;color:#7a5c00}
+  .chkgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 14px;margin-top:4px}
+  @media(max-width:640px){.chkgrid{grid-template-columns:1fr 1fr}}
+  .chk{font-size:12.5px;padding:2px 0}
+  .chk input{width:auto;margin-right:7px;vertical-align:-1px}
+  a.src{color:#1a56c4;font-size:11px}
+  .grp{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 3px}
+  .note{font-size:10.5px;color:var(--mut);margin-top:8px;line-height:1.5}
+  .tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:#eef2f9;color:var(--blue);font-weight:700;margin-left:6px}
+  details summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:12px;margin-top:4px}
+  @media print{header,.noprint,.inputs{display:none!important}body{background:#fff;font-size:11px}.wrap{max-width:100%;padding:0}.card{border:none;padding:0;margin:0 0 10px}.rep h3{page-break-after:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Property Due-Diligence Tool <span class="tag">RenewEQ LLC</span></h1>
+  <p>Enter a property + your deal numbers &rarr; RUN to research &rarr; review the compiled report &rarr; download PDF &amp; add dates to calendar.</p>
+</header>
+<div class="wrap">
+  <div class="inputs">
+  <div class="card noprint">
+    <h2>1 &middot; Property &amp; Deal Setup</h2>
+    <div class="row4">
+      <div><label>Street address</label><input id="addr" value="3326 Ruckle Street" oninput="links()"></div>
+      <div><label>City</label><input id="city" value="Saginaw" oninput="links()"></div>
+      <div><label>State</label><input id="state" value="MI" maxlength="2" style="text-transform:uppercase" oninput="onState()"></div>
+      <div><label>ZIP <span class="hint">(auto-state)</span></label><input id="zip" value="48601" oninput="onZip()"></div>
+    </div>
+    <div class="row3">
+      <div><label>Deal type</label><select id="dealtype"><option>Slow flip financed</option><option selected>Slow flip cash</option><option>Wholesale</option></select></div>
+      <div><label>Analyst</label><input id="analyst" placeholder="Mel / Scott"></div>
+      <div><label>Tenant name <span class="hint">(if occupied, for eviction search)</span></label><input id="tenant" placeholder="Last, First"></div>
+    </div>
+    <div class="grp">Key dates</div>
+    <div class="row5">
+      <div><label>PA execution</label><input id="d_pa" type="date" onchange="renderDates()"></div>
+      <div><label>Closing</label><input id="d_close" type="date" onchange="renderDates()"></div>
+      <div><label>Inspection deadline</label><input id="d_insp" type="date" onchange="renderDates()"></div>
+      <div><label id="l_m1lbl">Misc 1</label><input id="d_m1" type="date" onchange="renderDates()"></div>
+      <div><label id="l_m2lbl">Misc 2</label><input id="d_m2" type="date" onchange="renderDates()"></div>
+    </div>
+    <div class="row2">
+      <div><label>Misc 1 label</label><input id="m1lbl" value="Earnest money due" oninput="renderDates()"></div>
+      <div><label>Misc 2 label</label><input id="m2lbl" value="Title commitment" oninput="renderDates()"></div>
+    </div>
+  </div>
+  <div class="card noprint">
+    <h2>2 &middot; Slow Flip Deal Inputs</h2>
+    <div class="grp">Deal</div>
+    <div class="row4">
+      <div><label>Purchase price ($)</label><input id="i_price" class="calc" type="number" value="35000" oninput="calc()"></div>
+      <div><label>Buy closing %</label><input id="i_closepct" class="calc" type="number" step="0.1" value="3.5" oninput="calc()"></div>
+      <div><label>Repairs ($)</label><input id="i_repairs" class="calc" type="number" value="0" oninput="calc()"></div>
+      <div><label>BOG ($)</label><input id="i_bog" class="calc" type="number" value="0" oninput="calc()"></div>
+    </div>
+    <div class="grp">Funding type</div>
+    <div class="row3">
+      <div><label>Funding</label><select id="i_funding" class="calc" onchange="calc()"><option>Self-Funded</option><option>PML</option></select></div>
+      <div><label>Opportunity cost % <span class="hint">(self-funded)</span></label><input id="i_opp" class="calc" type="number" step="0.5" value="6" oninput="calc()"></div>
+      <div><label>Upfront insurance ($)</label><input id="i_upins" class="calc" type="number" value="0" oninput="calc()"></div>
+    </div>
+    <div class="grp">Private Money Lender (PML) <span class="hint">— used when funding = PML</span></div>
+    <div class="row4">
+      <div><label>PML loan amount ($)</label><input id="i_pmlamt" class="calc" type="number" value="30000" oninput="calc()"></div>
+      <div><label>PML interest rate %</label><input id="i_pmlrate" class="calc" type="number" step="0.25" value="12" oninput="calc()"></div>
+      <div><label>PML term (months)</label><input id="i_pmlterm" class="calc" type="number" value="60" oninput="calc()"></div>
+      <div><label>PML payment /mo</label><input id="o_pml" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
+    </div>
+    <div class="grp">Monthly carry <span class="hint">(tax &amp; insurance auto-fill from property search; editable)</span></div>
+    <div class="row3">
+      <div><label>Property tax /mo ($)</label><input id="i_tax" class="calc" type="number" step="0.01" value="72.92" oninput="calc()"></div>
+      <div><label>Insurance /mo ($)</label><input id="i_ins" class="calc" type="number" step="0.01" value="75.00" oninput="calc()"></div>
+      <div><label>Legal &amp; admin /mo ($)</label><input id="i_legal" class="calc" type="number" value="0" oninput="calc()"></div>
+    </div>
+    <div class="grp">Sale to Tenant-Buyer (TB)</div>
+    <div class="row5">
+      <div><label>TB sale price ($)</label><input id="i_tbsale" class="calc" type="number" value="86000" oninput="calc()"></div>
+      <div><label>TB down payment ($)</label><input id="i_tbdown" class="calc" type="number" value="3000" oninput="calc()"></div>
+      <div><label>TB interest rate %</label><input id="i_tbrate" class="calc" type="number" step="0.05" value="11.85" oninput="calc()"></div>
+      <div><label>TB term (months)</label><input id="i_tbterm" class="calc" type="number" value="360" oninput="calc()"></div>
+      <div><label>Usury state</label><select id="i_ustate" class="calc" onchange="calc()"><option>AL</option><option>FL</option><option>IA</option><option>IL</option><option>IN</option><option selected>MI</option><option>MO</option><option>MS</option><option>ND</option><option>OH</option><option>SD</option><option>WI</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label>TB loan amount</label><input id="o_tbloan" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
+      <div><label>TB payment /mo</label><input id="o_tbpay" type="text" readonly value="—" style="background:#eef7ee;font-weight:700"></div>
+    </div>
+  </div>
+  <div class="card noprint">
+    <div class="btnrow">
+      <button class="b-run" onclick="runResearch()">&#9654; RUN research for this address</button>
+      <button class="b-pdf" onclick="window.print()">&#8681; Download PDF</button>
+      <button class="b-cal" onclick="downloadICS()">&#128197; Add dates to calendar</button>
+      <button class="b-sec" onclick="openLinks()">Open lookup links</button>
+    </div>
+    <div class="note">RUN sends this address to Claude to pull comps, flood, crime, tax/millage, PIN &amp; liens and fill the report (and auto-populate the tax &amp; insurance boxes above). The deal analyzer computes live from your inputs now. Download PDF prints the report only. Calendar file adds an event <b>and</b> a task per date.</div>
+  </div>
+  </div>
+
+  <div class="card rep" id="report">
+    <h2>Compiled Report</h2>
+    <div id="rep_head"></div>
+    <h3>Key Dates</h3><div id="rep_dates"></div>
+    <h3>1 &middot; Property Summary</h3><div id="rep_prop"></div>
+    <h3>2 &middot; Rental Comps</h3><div id="rep_rent"></div>
+    <h3>3 &middot; Sale Comps</h3><div id="rep_sale"></div>
+    <h3>4 &middot; Flood &amp; 5 &middot; Crime</h3><div id="rep_fc"></div>
+    <h3>6 &middot; Taxes, Millage &amp; Liens</h3><div id="rep_tax"></div>
+    <h3>7 &middot; Deal Analysis — Slow Flip (live)</h3>
+    <div class="kpis" id="rep_kpi"></div><div id="rep_banner"></div>
+    <details><summary>Full deal breakdown</summary><div id="rep_deal"></div></details>
+    <h3>8 &middot; TO-DO Checklist</h3><div id="rep_todo"></div>
+    <h3>Sources</h3><div id="rep_src" class="note"></div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>isFinite(n)?'$'+Math.round(n).toLocaleString():'—';
+const money2=n=>isFinite(n)?'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const pct=(n,d=1)=>isFinite(n)?n.toFixed(d)+'%':'—';
+
+let R = {
+  pin:"91-00-0-64-9000-000", legal:"Lots 54 & 55, South Park Addition",
+  owner:"Robbins, Terry N — Wilder, ID (absentee)",
+  listPrice:"$50,000 (listed 6/6/2026, Pending)", mls:"50210465",
+  built:"1894", beds:"3", baths:"1", sqft:"935", lot:"0.22 ac", found:"Crawl (no basement)",
+  terms:"Land contract / seller financing",
+  listing:"https://www.jpargreatlakesbay.com/property/138-50210465-3326-Ruckle-Street-Saginaw-MI-48601",
+  bsa:"https://bsaonline.com/?uid=716",
+  rentLow:850, rentMid:1000, rentHigh:1344,
+  rentComps:[["HUD FMR 2025 (3-BR)","$1,344/mo","https://www.rentdata.org/saginaw-mi-msa/2025"],
+             ["HUD FMR 3-BR 50th pctile","$1,423/mo","https://www.rentdata.org/saginaw-mi-msa/2025"],
+             ["Apartments.com avg 3-bed","~$1,311/mo","https://www.apartments.com/rent-market-trends/saginaw-mi/"],
+             ["Citywide avg (all types)","$843/mo","https://www.apartments.com/rent-market-trends/saginaw-mi/"]],
+  saleComps:[["3/1","760 sqft","$50,000","Pending"],["3/1","984 sqft","$54,900","Pending"],
+             ["3/1","1,391 sqft","$47,000","Pending"],["3/1","1,144 sqft","$58,000","Active"]],
+  flood:"Zone X — minimal hazard; NOT in a Special Flood Hazard Area. Flood insurance not federally required.",
+  floodUrl:"https://msc.fema.gov/portal/search?AddressQuery=3326%20Ruckle%20St%20Saginaw%20MI%2048601",
+  crime:"CrimeGrade 137 (B-). Violent 72.3 vs 22.7 U.S.; property 66.6 vs 35.4 — elevated, typical east-side Saginaw.",
+  crimeUrl:"https://crimegrade.org/safest-places-in-saginaw-mi/",
+  delinquent:"$1,413.74", curTax:"$965/yr ($80.42/mo)", cityLevy:"16.24 mills",
+  totalMills:"~50 mills", projTax:"$875/yr ($72.92/mo) — uncapped @ 50 mills on $35k (SEV $17,500)",
+  taxMonthly:72.92, curTaxMonthly:80.42, insMonthly:75.00,
+  ownwell:"https://www.ownwell.com/trends/michigan/saginaw-county",
+  estimator:"https://treas-secure.state.mi.us/ptestimator",
+  rod:"https://www.saginawcountymi.gov/departments/register_of_deeds/",
+  city:"https://www.saginaw-mi.com/475/Property-Taxes",
+  rento:"https://www.rentometer.com/"
+};
+
+const ZR=[[5,5,'NY'],[6,9,'PR'],[10,27,'MA'],[28,29,'RI'],[30,38,'NH'],[39,49,'ME'],[50,59,'VT'],[60,69,'CT'],[70,89,'NJ'],[100,149,'NY'],[150,196,'PA'],[197,199,'DE'],[200,205,'DC'],[206,219,'MD'],[220,246,'VA'],[247,268,'WV'],[270,289,'NC'],[290,299,'SC'],[300,319,'GA'],[320,349,'FL'],[350,369,'AL'],[370,385,'TN'],[386,397,'MS'],[398,399,'GA'],[400,427,'KY'],[430,459,'OH'],[460,479,'IN'],[480,499,'MI'],[500,528,'IA'],[530,549,'WI'],[550,567,'MN'],[570,577,'SD'],[580,588,'ND'],[590,599,'MT'],[600,629,'IL'],[630,658,'MO'],[660,679,'KS'],[680,693,'NE'],[700,714,'LA'],[716,729,'AR'],[730,749,'OK'],[750,799,'TX'],[800,816,'CO'],[820,831,'WY'],[832,838,'ID'],[840,847,'UT'],[850,865,'AZ'],[870,884,'NM'],[889,898,'NV'],[900,961,'CA'],[967,968,'HI'],[970,979,'OR'],[980,994,'WA'],[995,999,'AK']];
+function zip2st(z){const d=(''+z).replace(/\D/g,'').slice(0,3);if(d.length<3)return'';const n=+d;for(const a of ZR)if(n>=a[0]&&n<=a[1])return a[2];return'';}
+function onZip(){const s=zip2st($('zip').value);if(s){$('state').value=s;$('i_ustate').value=s;}links();}
+function onState(){$('state').value=$('state').value.toUpperCase();links();}
+function amort(P,ratePct,n){const r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:0;return P*r/(1-Math.pow(1+r,-n));}
+
+function deal(){
+  const d={
+    purchasePrice:+$('i_price').value||0, buyClosingPct:+$('i_closepct').value||0,
+    initialRepairs:+$('i_repairs').value||0, bogCosts:+$('i_bog').value||0, upfrontInsurance:+$('i_upins').value||0,
+    fundingType:$('i_funding').value, pmlLoanAmount:+$('i_pmlamt').value||0, pmlRate:+$('i_pmlrate').value||0,
+    pmlTermMonths:+$('i_pmlterm').value||0, oppPct:+$('i_opp').value||0,
+    propTax:+$('i_tax').value||0, insurance:+$('i_ins').value||0, legal:+$('i_legal').value||0,
+    tbSale:+$('i_tbsale').value||0, tbDown:+$('i_tbdown').value||0, tbRate:+$('i_tbrate').value||0,
+    tbTerm:+$('i_tbterm').value||360, state:$('i_ustate').value };
+  const buyClosing=d.purchasePrice*d.buyClosingPct/100;
+  const down=d.fundingType==='PML'?Math.max(d.purchasePrice-d.pmlLoanAmount,0):d.purchasePrice;
+  const cashInvested=down+buyClosing+d.initialRepairs+d.bogCosts+d.upfrontInsurance;
+  const pmlPay=amort(d.pmlLoanAmount,d.pmlRate,d.pmlTermMonths);
+  const oppMo=d.fundingType==='Self-Funded'?cashInvested*d.oppPct/100/12:0;
+  const carry=d.propTax+d.insurance+d.legal;
+  const outflow=d.fundingType==='PML'?carry+pmlPay:carry+oppMo;
+  const tbLoan=d.tbSale-d.tbDown;
+  const tbPay=amort(tbLoan,d.tbRate,d.tbTerm);
+  const profitPML=d.fundingType==='PML'?tbPay-carry-pmlPay:tbPay-carry;
+  const profit6=tbPay-carry;
+  const profit=profitPML;
+  const margin=tbPay>0?profit/tbPay*100:0;
+  const netCash=Math.max(cashInvested-d.tbDown,0);
+  const coc=netCash>0?profit*12/netCash*100:0;
+  const totalRecv=tbPay*d.tbTerm+d.tbDown;
+  const pmlDebt=d.fundingType==='PML'?pmlPay*d.pmlTermMonths:0;
+  const pmlPayoff=d.fundingType==='PML'?d.pmlLoanAmount:0;
+  const projProfit=totalRecv-cashInvested-(carry*d.tbTerm)-pmlDebt-pmlPayoff;
+  const projROI=cashInvested>0?projProfit/cashInvested*100:0;
+  let status;
+  if(d.fundingType==='PML'){
+    if(profitPML<0||profit6<0)status='NEGATIVE';
+    else if(profitPML>=0&&profit6>=500)status='STRONG'; else status='TIGHT';
+  }else{ status=profit<0?'NEGATIVE':(profit>=500?'STRONG':'TIGHT'); }
+  const caps={IL:null,MI:11,OH:25,ND:null,SD:null,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null};
+  const cap=caps[d.state]!==undefined?caps[d.state]:null; const usuryOK=cap===null?true:d.tbRate<=cap;
+  return {d,buyClosing,cashInvested,pmlPay,oppMo,carry,outflow,tbLoan,tbPay,profit,profit6,margin,netCash,coc,projProfit,projROI,status,usuryOK,cap};
+}
+
+function calc(){
+  const c=deal();
+  if($('o_pml')) $('o_pml').value=money2(c.pmlPay);
+  if($('o_tbloan')) $('o_tbloan').value=money(c.tbLoan);
+  if($('o_tbpay')) $('o_tbpay').value=money2(c.tbPay);
+  $('rep_kpi').innerHTML=[
+    ['Monthly profit',money2(c.profit),c.profit>=500?'g':c.profit>=0?'w':'b'],
+    ['Cash-on-cash',pct(c.coc,0),c.coc>=10?'g':c.coc>=6?'w':'b'],
+    ['Cash invested',money(c.cashInvested),''],
+    ['Proj. ROI',pct(c.projROI,0),c.projROI>=100?'g':'w']
+  ].map(k=>'<div class="kpi"><div class="v '+k[2]+'">'+k[1]+'</div><div class="k">'+k[0]+'</div></div>').join('');
+  const b=$('rep_banner');
+  b.className='banner '+(c.status==='STRONG'?'ok':c.status==='TIGHT'?'mid':'no');
+  b.textContent=(c.status==='STRONG'?'✅':c.status==='TIGHT'?'⚠️':'❌')+' Deal Status: '+c.status+' — '+money2(c.profit)+'/mo';
+  let u='';
+  if(!c.usuryOK) u='<div class="flag">&#9873; <b>Usury ('+c.d.state+'): FAIL</b> — TB rate '+c.d.tbRate+'% exceeds the '+c.cap+'% cap. Lower the tenant-buyer rate to &le;'+c.cap+'% before executing.</div>';
+  $('rep_deal').innerHTML='<table>'
+    +'<tr><td>Buy closing ('+c.d.buyClosingPct+'%)</td><td class="r">'+money2(c.buyClosing)+'</td></tr>'
+    +'<tr><td>Cash invested</td><td class="r">'+money2(c.cashInvested)+'</td></tr>'
+    +'<tr><td>Net cash invested</td><td class="r">'+money2(c.netCash)+'</td></tr>'
+    +'<tr><td>Opportunity cost /mo</td><td class="r">'+money2(c.oppMo)+'</td></tr>'
+    +'<tr><td>PML payment /mo</td><td class="r">'+money2(c.pmlPay)+'</td></tr>'
+    +'<tr><td>Total carry /mo</td><td class="r">'+money2(c.carry)+'</td></tr>'
+    +'<tr><td>Monthly outflow</td><td class="r">'+money2(c.outflow)+'</td></tr>'
+    +'<tr><td>TB loan / payment</td><td class="r">'+money(c.tbLoan)+' / '+money2(c.tbPay)+'</td></tr>'
+    +'<tr><td>Monthly profit</td><td class="r"><b>'+money2(c.profit)+'</b></td></tr>'
+    +'<tr><td>Monthly margin</td><td class="r">'+pct(c.margin)+'</td></tr>'
+    +'<tr><td>Cash-on-cash</td><td class="r">'+pct(c.coc)+'</td></tr>'
+    +'<tr><td>Projected profit (TB term)</td><td class="r">'+money(c.projProfit)+'</td></tr>'
+    +'<tr><td>Projected ROI</td><td class="r">'+pct(c.projROI,0)+'</td></tr>'
+    +'<tr><td>Usury ('+c.d.state+')</td><td class="r">'+(c.usuryOK?'✓ OK':'✗ FAIL ('+c.cap+'% cap)')+'</td></tr>'
+    +'</table>'+u;
+}
+
+function fullAddr(){return [$('addr').value,$('city').value,$('state').value,$('zip').value].filter(Boolean).join(', ');}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function applyResearchToDeal(){ if($('i_tax'))$('i_tax').value=R.taxMonthly; if($('i_ins'))$('i_ins').value=R.insMonthly; }
+
+function renderReport(){
+  applyResearchToDeal();
+  $('rep_head').innerHTML='<table>'
+    +'<tr><td><b>Property</b></td><td>'+esc(fullAddr())+'</td><td><b>Deal type</b></td><td>'+esc($('dealtype').value)+'</td></tr>'
+    +'<tr><td><b>Parcel (PIN)</b></td><td>'+esc(R.pin)+'</td><td><b>MLS #</b></td><td>'+esc(R.mls)+'</td></tr>'
+    +'<tr><td><b>Legal</b></td><td>'+esc(R.legal)+'</td><td><b>List price</b></td><td>'+esc(R.listPrice)+'</td></tr></table>';
+  $('rep_prop').innerHTML='<table>'
+    +'<tr><td>Beds/baths</td><td>'+R.beds+'/'+R.baths+'</td><td>Sq ft</td><td>'+R.sqft+'</td><td>Built</td><td>'+R.built+'</td></tr>'
+    +'<tr><td>Lot</td><td>'+R.lot+'</td><td>Foundation</td><td>'+R.found+'</td><td>Terms</td><td><b>'+esc(R.terms)+'</b></td></tr>'
+    +'<tr><td>Owner</td><td colspan="5">'+esc(R.owner)+'</td></tr></table>'
+    +'<div class="note">Source: <a class="src" href="'+R.listing+'" target="_blank">listing/MLS</a> &middot; <a class="src" href="'+R.bsa+'" target="_blank">county assessor (BS&A)</a></div>';
+  let rc='<table><tr><th>Source</th><th class="r">Figure</th><th class="r">Link</th></tr>'
+    +R.rentComps.map(c=>'<tr><td>'+esc(c[0])+'</td><td class="r">'+c[1]+'</td><td class="r"><a class="src" href="'+c[2]+'" target="_blank">open</a></td></tr>').join('')+'</table>';
+  rc+='<table style="margin-top:6px"><tr><th>Low</th><th class="r">Middle</th><th class="r">High (Sec 8 ceiling)</th></tr>'
+    +'<tr><td>'+money(R.rentLow)+'/mo</td><td class="r">'+money(R.rentMid)+'/mo</td><td class="r">'+money(R.rentHigh)+'/mo</td></tr></table>'
+    +'<div class="note">Low = bottom-of-market for a small unit needing work; Middle = typical achievable; High = HUD FMR / Section 8 ceiling.</div>';
+  $('rep_rent').innerHTML=rc;
+  $('rep_sale').innerHTML='<table><tr><th>Bd/Ba</th><th>Size</th><th class="r">Price</th><th class="r">Status</th></tr>'
+    +R.saleComps.map(c=>'<tr><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="r">'+c[2]+'</td><td class="r">'+c[3]+'</td></tr>').join('')+'</table>';
+  $('rep_fc').innerHTML='<table>'
+    +'<tr><td><b>Flood (FEMA)</b></td><td>'+esc(R.flood)+' <a class="src" href="'+R.floodUrl+'" target="_blank">verify</a></td></tr>'
+    +'<tr><td><b>Crime</b></td><td>'+esc(R.crime)+' <a class="src" href="'+R.crimeUrl+'" target="_blank">verify</a></td></tr></table>';
+  $('rep_tax').innerHTML='<table>'
+    +'<tr><td><b>&#9873; Delinquent taxes owed</b></td><td class="r"><b>'+R.delinquent+'</b></td><td class="r"><a class="src" href="'+R.bsa+'" target="_blank">assessor</a></td></tr>'
+    +'<tr><td>Current annual tax (fed as $'+R.curTaxMonthly.toFixed(2)+'/mo option)</td><td class="r">'+R.curTax+'</td><td class="r"><a class="src" href="'+R.listing+'" target="_blank">MLS</a></td></tr>'
+    +'<tr><td>Est. total non-homestead millage</td><td class="r">'+R.totalMills+'</td><td class="r"><a class="src" href="'+R.ownwell+'" target="_blank">Ownwell</a></td></tr>'
+    +'<tr><td colspan="3">Fed to deal analyzer &rarr; tax <b>$'+R.taxMonthly.toFixed(2)+'/mo</b> (uncapped projection), insurance <b>$'+R.insMonthly.toFixed(2)+'/mo</b>. '+esc(R.projTax)+'</td></tr></table>'
+    +'<div class="flag">&#9873; The '+R.delinquent+' delinquent balance is a lien — clear at/after closing or net it against your offer.</div>';
+  renderDates(); renderTodo();
+  $('rep_src').innerHTML=['listing','bsa','floodUrl','ownwell','estimator','crimeUrl'].map(k=>'<a class="src" href="'+R[k]+'" target="_blank">'+R[k].replace(/^https?:\/\//,'').split('/')[0]+'</a>').join(' &middot; ');
+  calc();
+}
+function dfmt(v){if(!v)return '—';const p=v.split('-');return p[1]+'/'+p[2]+'/'+p[0];}
+function dateItems(){return [['PA execution',$('d_pa').value],['Closing',$('d_close').value],['Inspection deadline',$('d_insp').value],[$('m1lbl').value||'Misc 1',$('d_m1').value],[$('m2lbl').value||'Misc 2',$('d_m2').value]];}
+function renderDates(){
+  $('l_m1lbl').textContent=$('m1lbl').value||'Misc 1';
+  $('l_m2lbl').textContent=$('m2lbl').value||'Misc 2';
+  $('rep_dates').innerHTML='<table><tr>'+dateItems().map(d=>'<th>'+esc(d[0])+'</th>').join('')+'</tr><tr>'+dateItems().map(d=>'<td>'+dfmt(d[1])+'</td>').join('')+'</tr></table>';
+}
+function renderTodo(){
+  const A=[['BS&A: verify parcel / PIN, SEV & taxable value',R.bsa],['BS&A: confirm delinquent-tax payoff ('+R.delinquent+') & liens',R.bsa],['MLS: verify listing details (beds/baths/price/status)',R.listing],['Chain of title / open mortgages',R.rod],['Water / sewer / city liens',R.city],['Blight / code / condemnation',R.city],['Address-level rent comp',R.rento],['Fix TB rate to usury cap if flagged','']];
+  const B=['BOG initial walkthrough','Roof','Foundation','Dry basement','No leaking ceiling','Plumbing','Electrical','HVAC','Water heater','Kitchen','Bathroom','Windows'];
+  const C=['Tenant in place? If yes, get name for eviction search','Obtain current lease','Obtain rent roll'];
+  const D=['Final walkthrough (BOG)','Obtain property insurance','Review preliminary title','Review Settlement Statement','Wire sent'];
+  const ck=(t,u)=>'<div class="chk"><label><input type="checkbox">'+esc(t)+(u?' <a class="src" href="'+u+'" target="_blank">link</a>':'')+'</label></div>';
+  $('rep_todo').innerHTML='<div class="grp">A &middot; Data to confirm</div>'+A.map(x=>ck(x[0],x[1])).join('')
+    +'<div class="grp">B &middot; Physical inspection (BOG walkthrough)</div><div class="chkgrid">'+B.map(x=>ck(x)).join('')+'</div>'
+    +'<div class="grp">C &middot; Tenants &amp; occupancy</div>'+C.map(x=>ck(x)).join('')
+    +'<div class="grp">D &middot; Closing</div>'+D.map(x=>ck(x)).join('');
+}
+function links(){}
+function openLinks(){
+  const q=encodeURIComponent(fullAddr()), st=$('state').value.toUpperCase(), zip=$('zip').value.replace(/\D/g,'').slice(0,5);
+  ['https://www.google.com/maps/search/?api=1&query='+q,'https://www.zillow.com/homes/'+q+'_rb/','https://app.rentcast.io/app?address='+q,'https://publicrecords.netronline.com/state/'+st,'https://msc.fema.gov/portal/search?AddressQuery='+q,'https://crimegrade.org/safest-places-in-'+zip+'/'].forEach(u=>window.open(u,'_blank'));
+}
+function applyResearch(x){
+  const num=(v,f)=>(v===null||v===undefined||isNaN(v))?f:+v;
+  R.pin = x.pin || '(confirm on county records)';
+  R.owner = x.owner || '(confirm on county records)';
+  R.beds = x.beds||'—'; R.baths = x.baths||'—'; R.sqft = x.sqft||'—';
+  R.built = x.built||'—'; R.lot = x.lot||'—'; R.found='—';
+  R.legal='(confirm on county records)'; R.terms='(verify listing)';
+  R.listPrice='(verify listing)'; R.mls='(verify listing)';
+  R.listing = x.listingSearchUrl || 'https://www.google.com/search?q='+encodeURIComponent(fullAddr());
+  R.bsa = x.countyRecordsUrl; R.rod = x.countyRecordsUrl; R.city = x.countyRecordsUrl;
+  R.rento = x.rentcastUrl; R.ownwell = x.countyRecordsUrl; R.estimator = x.countyRecordsUrl;
+  R.flood = x.flood || '(FEMA lookup failed — verify manually)'; R.floodUrl = x.floodUrl;
+  R.crime = x.crime || '(no automated crime source — check link)'; R.crimeUrl = x.crimeUrl;
+  R.rentComps = (x.rentMid)?[['RentCast AVM (address)', '$'+x.rentMid+'/mo', x.rentcastUrl]]:[];
+  R.rentLow=num(x.rentLow,0); R.rentMid=num(x.rentMid,0); R.rentHigh=num(x.rentHigh,0);
+  R.saleComps=[];
+  R.delinquent='(confirm on county records)'; R.cityLevy='(state-specific — confirm)';
+  R.totalMills='(state-specific — confirm)'; R.projTax='(confirm on county records)';
+  R.curTax = x.taxAnnual?('$'+x.taxAnnual+'/yr'):'(confirm)';
+  R.taxMonthly=num(x.taxMonthly,0); R.curTaxMonthly=num(x.taxMonthly,0); R.insMonthly=num(x.insMonthly,75);
+  if(x.needsConfirm && x.needsConfirm.length){ R._needs = x.needsConfirm; }
+  renderReport();
+}
+function runResearch(){
+  const payload={address:$('addr').value,city:$('city').value,state:$('state').value,zip:$('zip').value};
+  const hosted = location.protocol==='http:'||location.protocol==='https:';
+  if(hosted){
+    const btn=document.querySelector('.b-run'); const t0=btn.textContent; btn.textContent='Running research…';
+    fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(r=>r.json()).then(d=>{ btn.textContent=t0; if(d.error){alert('Research error: '+d.error);return;} applyResearch(d);
+        if(!d.rentcastActive){/* running on free sources only */} })
+      .catch(e=>{ btn.textContent=t0; alert('Could not reach research server: '+e.message); });
+    return;
+  }
+  const msg='Run full due-diligence and refill the report for: '+fullAddr()+'. Deal type: '+$('dealtype').value+'. Pull comps (low/mid/high), FEMA flood, crime, tax/millage, PIN, legal, and any liens; auto-fill the deal analyzer property tax and insurance from the search; use my Slow Flip inputs as entered.';
+  if(window.sendPrompt){window.sendPrompt(msg);}
+  else{navigator.clipboard.writeText(msg).then(()=>alert('Copied a RUN request to your clipboard — paste it to Claude in chat:\n\n'+msg));}
+}
+function icsDate(v){return v.replace(/-/g,'');}
+function downloadICS(){
+  const items=dateItems().filter(d=>d[1]);
+  if(!items.length){alert('Enter at least one date first.');return;}
+  const prop=fullAddr(); const now=new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//RenewEQ//DD//EN\r\nCALSCALE:GREGORIAN\r\n';
+  items.forEach((d,i)=>{
+    const dt=icsDate(d[1]); const uid=Date.now()+'-'+i; const title=d[0]+' — '+prop;
+    ics+='BEGIN:VEVENT\r\nUID:evt-'+uid+'@renew\r\nDTSTAMP:'+now+'\r\nDTSTART;VALUE=DATE:'+dt+'\r\nDTEND;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nDESCRIPTION:RenewEQ due-diligence date for '+prop+'\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:'+title+'\r\nEND:VALARM\r\nEND:VEVENT\r\n';
+    ics+='BEGIN:VTODO\r\nUID:todo-'+uid+'@renew\r\nDTSTAMP:'+now+'\r\nDUE;VALUE=DATE:'+dt+'\r\nSUMMARY:'+title+'\r\nSTATUS:NEEDS-ACTION\r\nEND:VTODO\r\n';
+  });
+  ics+='END:VCALENDAR\r\n';
+  const blob=new Blob([ics],{type:'text/calendar'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='renew_dd_dates.ics'; a.click();
+}
+renderReport();
+</script>
+</body>
+</html>
