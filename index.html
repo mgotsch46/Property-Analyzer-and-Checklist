@@ -176,6 +176,14 @@
   </div>
 
   <div class="card">
+    <h2>Import Full Research <span class="hint">(engine mode — auto-fills the whole report)</span></h2>
+    <div class="note">1) Click <b>Copy full research request</b> and paste it to Claude in chat. 2) Paste the JSON Claude returns below and click Apply — it fills property summary, PIN, legal, MLS#, list price, rental &amp; sale comps, tax, millage, crime, and flood into the report &amp; PDF.</div>
+    <div class="btnrow"><button class="b-sec" onclick="copyFullReq()">Copy full research request</button></div>
+    <textarea id="rimport" rows="6" placeholder="Paste the JSON Claude returns here…" style="width:100%;border:1px solid #cdd4de;border-radius:6px;padding:8px;font-size:12px;font-family:monospace"></textarea>
+    <div class="btnrow"><button class="b-cal" onclick="applyFull()">Apply research to report</button></div>
+  </div>
+
+  <div class="card">
     <div class="btnrow">
       <button class="b-run" onclick="runResearch()">&#9654; RUN research for this address</button>
       <button class="b-pdf" onclick="downloadPDF()">&#8681; Download PDF</button>
@@ -437,6 +445,30 @@ function applyComps(){
   R.compsNote=$('c_notes').value.trim();
   R.rentComps=[];
   renderReport();
+  window.scrollTo(0,document.getElementById('report').offsetTop-10);
+}
+function copyFullReq(){
+  var msg='Research this property and return ONLY a JSON object (no prose, no code fence) with these keys: beds, baths, sqft, built, lot, style, owner, terms, condition, pin, legal, mls, listPrice, curTax (annual, like "$965/yr"), millage (number = non-homestead mills), delinquent, flood, crime, rentLow, rentMid, rentHigh, rentComps (array of [source, figure]), saleComps (array of [bd/ba, size, price, status]), compsNote (market analysis + investor takeaway + sources). Use null for anything unknown. Property: '+fullAddr()+', deal type '+$('dealtype').value+'.';
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert('Full research request copied. Paste it to Claude, then paste the JSON back into the box and Apply.');});}
+  else{prompt('Copy this request and paste to Claude:', msg);}
+}
+function applyFull(){
+  var raw=$('rimport').value.trim();
+  if(!raw){alert('Paste the JSON research block first.');return;}
+  raw=raw.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+  var j; try{ j=JSON.parse(raw); }catch(e){ alert('That is not valid JSON: '+e.message); return; }
+  var g=function(k,d){return (j[k]===undefined||j[k]===null||j[k]==='')?d:j[k];};
+  R.beds=g('beds','—'); R.baths=g('baths','—'); R.sqft=g('sqft','—'); R.built=g('built','—');
+  R.lot=g('lot','—'); R.style=g('style','—'); R.owner=g('owner','— look up'); R.terms=g('terms','—');
+  R.pin=g('pin','— look up'); R.legal=g('legal','— look up'); R.mls=g('mls','—'); R.listPrice=g('listPrice','—');
+  R.curTax=g('curTax','— look up'); R.delinquent=g('delinquent','— look up');
+  R.flood=g('flood',R.flood); R.crime=g('crime','— look up');
+  if(j.rentLow!=null)R.rentLow=+j.rentLow; if(j.rentMid!=null)R.rentMid=+j.rentMid; if(j.rentHigh!=null)R.rentHigh=+j.rentHigh;
+  if(Array.isArray(j.rentComps))R.rentComps=j.rentComps.map(function(c){return [c[0],c[1],R.rento];});
+  if(Array.isArray(j.saleComps))R.saleComps=j.saleComps;
+  if(j.compsNote)R.compsNote=j.compsNote;
+  if(j.millage!=null){R.millage=j.millage; if($('m_mills'))$('m_mills').value=j.millage;}
+  millage(); insurance(); renderReport();
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
 }
 millage(); insurance(); renderReport();
