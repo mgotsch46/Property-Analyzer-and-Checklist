@@ -67,10 +67,10 @@
   <div class="card">
     <h2>1 &middot; Property &amp; Deal Setup</h2>
     <div class="row4">
-      <div><label>Street address</label><input id="addr" value="3326 Ruckle Street"></div>
-      <div><label>City</label><input id="city" value="Saginaw"></div>
-      <div><label>State</label><input id="state" value="MI" maxlength="2" style="text-transform:uppercase" oninput="onState()"></div>
-      <div><label>ZIP <span class="hint">(auto-state)</span></label><input id="zip" value="48601" oninput="onZip()"></div>
+      <div><label>Street address</label><input id="addr" value="" placeholder="1234 Main St"></div>
+      <div><label>City</label><input id="city" value="" placeholder="City"></div>
+      <div><label>State</label><input id="state" value="" maxlength="2" placeholder="ST" style="text-transform:uppercase" oninput="onState()"></div>
+      <div><label>ZIP <span class="hint">(auto-state)</span></label><input id="zip" value="" placeholder="ZIP" oninput="onZip()"></div>
     </div>
     <div class="row3">
       <div><label>Deal type</label><select id="dealtype"><option>Slow flip financed</option><option selected>Slow flip cash</option><option>Wholesale</option></select></div>
@@ -94,9 +94,8 @@
   <div class="card">
     <h2>2 &middot; Property Tax (Millage) &amp; Insurance Calculators</h2>
     <div class="grp">Non-homestead property tax &mdash; millage calculator <span class="hint">(rate researched by address on RUN; editable)</span></div>
-    <div class="row4">
-      <div><label>Assessed / market value ($)</label><input id="m_val" class="calc" type="number" value="35000" oninput="millage()"><div class="hint">defaults to purchase price</div></div>
-      <div><label>Non-homestead millage (mills)</label><input id="m_mills" class="calc" type="number" step="0.01" value="50" oninput="millage()"></div>
+    <div class="row3">
+      <div><label>Non-homestead millage (mills) <span class="hint">(uses purchase price)</span></label><input id="m_mills" class="calc" type="number" step="0.01" value="50" oninput="millage()"></div>
       <div><label>MI SEV basis</label><select id="m_sev" class="calc" onchange="millage()"><option value="1">Yes (taxable = 50% value)</option><option value="0">No (taxable = value)</option></select></div>
       <div><label>Annual property tax</label><input id="m_annual" readonly value="—"></div>
     </div>
@@ -141,9 +140,9 @@
       <div><label>PML term (months)</label><input id="i_pmlterm" class="calc" type="number" value="60" oninput="calc()"></div>
       <div><label>PML payment /mo</label><input id="o_pml" readonly value="—"></div>
     </div>
-    <div class="grp">Monthly carry <span class="hint">(tax &amp; insurance auto-fill from the calculators above; editable)</span></div>
-    <div class="row3">
-      <div><label>Property tax /mo ($)</label><input id="i_tax" class="calc" type="number" step="0.01" value="72.92" oninput="calc()"></div>
+    <div class="grp">Monthly carry <span class="hint">(property tax is driven by the millage calculator above)</span></div>
+    <input type="hidden" id="i_tax" value="0">
+    <div class="row2">
       <div><label>Insurance /mo ($)</label><input id="i_ins" class="calc" type="number" step="0.01" value="75.00" oninput="calc()"></div>
       <div><label>Legal &amp; admin /mo ($)</label><input id="i_legal" class="calc" type="number" value="0" oninput="calc()"></div>
     </div>
@@ -217,42 +216,24 @@ const money2=n=>isFinite(n)?'$'+n.toLocaleString(undefined,{minimumFractionDigit
 const pct=(n,d=1)=>isFinite(n)?n.toFixed(d)+'%':'—';
 
 let R = {
-  pin:"91-00-0-64-9000-000", legal:"Lots 54 & 55, South Park Addition",
-  owner:"Robbins, Terry N — Wilder, ID (absentee)",
-  listPrice:"$50,000 (listed 6/6/2026, Pending)", mls:"50210465",
-  built:"1894", beds:"3", baths:"1", sqft:"935", lot:"0.22 ac", found:"Crawl (no basement)",
-  style:"Single family, 1-story Traditional", terms:"Land contract / seller financing",
-  listing:"https://www.jpargreatlakesbay.com/property/138-50210465-3326-Ruckle-Street-Saginaw-MI-48601",
-  bsa:"https://bsaonline.com/?uid=716",
-  rentLow:850, rentMid:1000, rentHigh:1344,
-  rentComps:[["HUD FMR 2025 (3-BR)","$1,344/mo","https://www.rentdata.org/saginaw-mi-msa/2025"],
-             ["HUD FMR 3-BR 50th pctile","$1,423/mo","https://www.rentdata.org/saginaw-mi-msa/2025"],
-             ["Apartments.com avg 3-bed","~$1,311/mo","https://www.apartments.com/rent-market-trends/saginaw-mi/"],
-             ["Citywide avg (all types)","$843/mo","https://www.apartments.com/rent-market-trends/saginaw-mi/"]],
-  saleComps:[["3/1","760 sqft","$50,000","Pending"],["3/1","984 sqft","$54,900","Pending"],
-             ["3/1","1,391 sqft","$47,000","Pending"],["3/1","1,144 sqft","$58,000","Active"]],
-  flood:"Zone X — minimal hazard; NOT in a Special Flood Hazard Area. Flood insurance not federally required.",
-  floodUrl:"https://msc.fema.gov/portal/search?AddressQuery=3326%20Ruckle%20St%20Saginaw%20MI%2048601",
-  crime:"CrimeGrade 137 (B-). Violent 72.3 vs 22.7 U.S.; property 66.6 vs 35.4 — elevated, typical east-side Saginaw.",
-  crimeUrl:"https://crimegrade.org/safest-places-in-saginaw-mi/",
-  delinquent:"$1,413.74", curTax:"$965/yr ($80.42/mo)", millage:50, value:35000,
-  ownwell:"https://www.ownwell.com/trends/michigan/saginaw-county",
-  estimator:"https://treas-secure.state.mi.us/ptestimator",
-  rod:"https://www.saginawcountymi.gov/departments/register_of_deeds/",
-  city:"https://www.saginaw-mi.com/475/Property-Taxes",
-  rento:"https://www.rentometer.com/"
-};
+  pin:"— look up", legal:"— look up", owner:"— look up", listPrice:"—", mls:"—",
+  built:"—", beds:"—", baths:"—", sqft:"—", lot:"—", found:"—", style:"—", terms:"—",
+  listing:"", bsa:"", rentLow:0, rentMid:0, rentHigh:0, rentComps:[], saleComps:[],
+  flood:"— look up", floodUrl:"", crime:"— look up", crimeUrl:"",
+  delinquent:"— look up", curTax:"— look up", millage:"", value:0,
+  ownwell:"", estimator:"https://treas-secure.state.mi.us/ptestimator", rod:"", city:"", rento:"https://www.rentometer.com/"
+}
 
 const ZR=[[5,5,'NY'],[6,9,'PR'],[10,27,'MA'],[28,29,'RI'],[30,38,'NH'],[39,49,'ME'],[50,59,'VT'],[60,69,'CT'],[70,89,'NJ'],[100,149,'NY'],[150,196,'PA'],[197,199,'DE'],[200,205,'DC'],[206,219,'MD'],[220,246,'VA'],[247,268,'WV'],[270,289,'NC'],[290,299,'SC'],[300,319,'GA'],[320,349,'FL'],[350,369,'AL'],[370,385,'TN'],[386,397,'MS'],[398,399,'GA'],[400,427,'KY'],[430,459,'OH'],[460,479,'IN'],[480,499,'MI'],[500,528,'IA'],[530,549,'WI'],[550,567,'MN'],[570,577,'SD'],[580,588,'ND'],[590,599,'MT'],[600,629,'IL'],[630,658,'MO'],[660,679,'KS'],[680,693,'NE'],[700,714,'LA'],[716,729,'AR'],[730,749,'OK'],[750,799,'TX'],[800,816,'CO'],[820,831,'WY'],[832,838,'ID'],[840,847,'UT'],[850,865,'AZ'],[870,884,'NM'],[889,898,'NV'],[900,961,'CA'],[967,968,'HI'],[970,979,'OR'],[980,994,'WA'],[995,999,'AK']];
 function zip2st(z){const d=(''+z).replace(/\D/g,'').slice(0,3);if(d.length<3)return'';const n=+d;for(const a of ZR)if(n>=a[0]&&n<=a[1])return a[2];return'';}
 function onZip(){const s=zip2st($('zip').value);if(s){$('state').value=s;$('i_ustate').value=s;$('m_sev').value=(s==='MI')?'1':'0';millage();}}
 function onState(){$('state').value=$('state').value.toUpperCase();}
-function syncVal(){ $('m_val').value=$('i_price').value; millage(); }
+function syncVal(){ millage(); }
 function amort(P,ratePct,n){const r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:0;return P*r/(1-Math.pow(1+r,-n));}
 
 /* ---- millage & insurance calculators ---- */
 function millage(){
-  const val=+$('m_val').value||0, mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
+  const val=+$('i_price').value||0, mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
   const taxable = sev ? val*0.5 : val;
   const annual = taxable*mills/1000, mo=annual/12;
   $('m_annual').value=money(annual); $('m_month').value=money2(mo);
