@@ -202,6 +202,7 @@
     <h2>Compiled Report</h2>
     <div id="rep_head"></div>
     <h3>Key Dates</h3><div id="rep_dates"></div>
+    <h3>Photos &amp; Map</h3><div id="rep_media"></div>
     <h3>1 &middot; Property Summary</h3><div id="rep_prop"></div>
     <h3>2 &middot; Rental Comps</h3><div id="rep_rent"></div>
     <h3>3 &middot; Sale Comps</h3><div id="rep_sale"></div>
@@ -228,7 +229,7 @@ let R = {
   built:"—", beds:"—", baths:"—", sqft:"—", lot:"—", found:"—", style:"—", terms:"—",
   listing:"", bsa:"", rentLow:0, rentMid:0, rentHigh:0, rentComps:[], saleComps:[],
   flood:"— look up", floodUrl:"", crime:"— look up", crimeUrl:"",
-  delinquent:"— look up", curTax:"— look up", millage:"", value:0,
+  delinquent:"— look up", curTax:"— look up", millage:"", value:0, photos:[], lat:null, lng:null,
   ownwell:"", estimator:"https://treas-secure.state.mi.us/ptestimator", rod:"", city:"", rento:"https://www.rentometer.com/"
 }
 
@@ -376,7 +377,7 @@ function renderReport(){
     +'<tr><td>Millage-calc property tax &rarr; deal</td><td class="r">'+$('m_annual').value+'/yr ('+$('m_month').value+'/mo)</td><td class="r"></td></tr>'
     +'<tr><td>Estimated insurance &rarr; deal</td><td class="r">'+$('in_annual').value+'/yr ('+$('in_month').value+'/mo)</td><td class="r"></td></tr></table>'
     +'<div class="flag">&#9873; Delinquent balance is a lien — clear at/after closing or net it against your offer. Confirm exact SEV/taxable value &amp; millage on the county assessor.</div>';
-  renderDates(); renderTodo();
+  renderMedia(); renderDates(); renderTodo();
   $('rep_src').innerHTML=['listing','bsa','floodUrl','ownwell','estimator','crimeUrl'].map(k=>R[k]?'<a class="src" href="'+R[k]+'" target="_blank">'+R[k].replace(/^https?:\/\//,'').split('/')[0]+'</a>':'').filter(Boolean).join(' &middot; ');
   calc();
 }
@@ -386,6 +387,27 @@ function renderDates(){
   $('l_m1lbl').textContent=$('m1lbl').value||'Misc 1';
   $('l_m2lbl').textContent=$('m2lbl').value||'Misc 2';
   $('rep_dates').innerHTML='<table><tr>'+dateItems().map(d=>'<th>'+esc(d[0])+'</th>').join('')+'</tr><tr>'+dateItems().map(d=>'<td>'+dfmt(d[1])+'</td>').join('')+'</tr></table>';
+}
+function renderMedia(){
+  var q=encodeURIComponent(fullAddr()||'');
+  var maps='https://www.google.com/maps/search/?api=1&query='+q;
+  var sv=(R.lat&&R.lng)?('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+R.lat+','+R.lng):('https://www.google.com/maps/place/'+q);
+  var zillow='https://www.zillow.com/homes/'+q+'_rb/';
+  var redfin='https://www.redfin.com/stingray/do/location-search?location='+q;
+  var gimg='https://www.google.com/search?tbm=isch&q='+q;
+  var links='<div class="note">&#128205; '
+    +'<a class="src" href="'+maps+'" target="_blank">Google Maps</a> &middot; '
+    +'<a class="src" href="'+sv+'" target="_blank">Street View</a> &middot; '
+    +'<a class="src" href="'+zillow+'" target="_blank">Zillow photos</a> &middot; '
+    +'<a class="src" href="'+redfin+'" target="_blank">Redfin</a> &middot; '
+    +'<a class="src" href="'+gimg+'" target="_blank">Google Images</a></div>';
+  var thumbs='';
+  if(Array.isArray(R.photos)&&R.photos.length){
+    thumbs='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
+      +R.photos.map(function(u){return '<a href="'+u+'" target="_blank"><img src="'+u+'" alt="property photo" style="width:150px;height:105px;object-fit:cover;border:1px solid #cdd4de;border-radius:6px"></a>';}).join('')
+      +'</div>';
+  }
+  $('rep_media').innerHTML=links+thumbs;
 }
 function renderTodo(){
   const A=[['BS&A: verify parcel / PIN, SEV & taxable value',R.bsa],['BS&A: confirm delinquent-tax payoff ('+R.delinquent+') & liens',R.bsa],['MLS: verify listing details (beds/baths/price/status)',R.listing],['Chain of title / open mortgages',R.rod],['Water / sewer / city liens',R.city],['Blight / code / condemnation',R.city],['Address-level rent comp',R.rento],['Confirm non-homestead millage rate',R.estimator],['Fix TB rate to usury cap if flagged','']];
@@ -417,7 +439,8 @@ function applyResearch(x){
     flood: x.flood||na, floodUrl: x.floodUrl||('https://msc.fema.gov/portal/search?AddressQuery='+encodeURIComponent(fullAddr())),
     crime: na, crimeUrl: x.crimeUrl||'https://crimegrade.org/',
     delinquent: na, curTax: x.taxAnnual? ('$'+x.taxAnnual+'/yr') : na,
-    millage: (x.millage!=null?x.millage:''), value:(+$('i_price').value||0)
+    millage: (x.millage!=null?x.millage:''), value:(+$('i_price').value||0),
+    lat: x.lat||null, lng: x.lng||null, photos: Array.isArray(x.photos)?x.photos:[]
   };
   $('m_val').value=$('i_price').value;
   $('m_mills').value = (x.millage!=null? x.millage : '');
@@ -437,7 +460,7 @@ function applyComps(){
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
 }
 function copyFullReq(){
-  var msg='Research this property and return ONLY a JSON object (no prose, no code fence) with these keys: beds, baths, sqft, built, lot, style, owner, terms, condition, pin, legal, mls, listPrice, curTax (annual, like "$965/yr"), millage (number = non-homestead mills), delinquent, flood, crime, rentLow, rentMid, rentHigh, rentComps (array of [source, figure]), saleComps (array of [bd/ba, size, price, status]), compsNote (market analysis + investor takeaway + sources). Use null for anything unknown. Property: '+fullAddr()+', deal type '+$('dealtype').value+'.';
+  var msg='Research this property and return ONLY a JSON object (no prose, no code fence) with these keys: beds, baths, sqft, built, lot, style, owner, terms, condition, pin, legal, mls, listPrice, curTax (annual, like "$965/yr"), millage (number = non-homestead mills), delinquent, flood, crime, rentLow, rentMid, rentHigh, rentComps (array of [source, figure]), saleComps (array of [bd/ba, size, price, status]), compsNote (market analysis + investor takeaway + sources), photos (array of direct image URLs to listing/street-view photos), lat, lng. Use null for anything unknown. Property: '+fullAddr()+', deal type '+$('dealtype').value+'.';
   if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert('Full research request copied. Paste it to Claude, then paste the JSON back into the box and Apply.');});}
   else{prompt('Copy this request and paste to Claude:', msg);}
 }
@@ -457,6 +480,7 @@ function applyFull(){
   if(Array.isArray(j.saleComps))R.saleComps=j.saleComps;
   if(j.compsNote)R.compsNote=j.compsNote;
   if(j.millage!=null){R.millage=j.millage; if($('m_mills'))$('m_mills').value=j.millage;}
+  if(Array.isArray(j.photos))R.photos=j.photos; if(j.lat)R.lat=j.lat; if(j.lng)R.lng=j.lng;
   showBusy('Applying research…'); millage(); insurance(); renderReport();
   window.scrollTo(0,document.getElementById('report').offsetTop-10); setTimeout(hideBusy,400);
 }
