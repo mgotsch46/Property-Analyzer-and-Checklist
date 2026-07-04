@@ -383,20 +383,31 @@ function openLinks(){
   ['https://www.google.com/maps/search/?api=1&query='+q,'https://www.zillow.com/homes/'+q+'_rb/','https://app.rentcast.io/app?address='+q,'https://publicrecords.netronline.com/state/'+st,'https://msc.fema.gov/portal/search?AddressQuery='+q,'https://crimegrade.org/safest-places-in-'+zip+'/'].forEach(u=>window.open(u,'_blank'));
 }
 function applyResearch(x){
-  const set=(k,v)=>{if(v!==null&&v!==undefined&&v!=='')R[k]=v;};
-  set('pin',x.pin); set('owner',x.owner); set('beds',x.beds); set('baths',x.baths); set('sqft',x.sqft);
-  set('built',x.built); set('lot',x.lot);
-  R.flood=x.flood||R.flood; R.floodUrl=x.floodUrl||R.floodUrl;
-  R.crime=x.crime||'(no automated crime source — check link)'; R.crimeUrl=x.crimeUrl||R.crimeUrl;
-  if(x.rentMid){R.rentLow=x.rentLow;R.rentMid=x.rentMid;R.rentHigh=x.rentHigh;R.rentComps=[['RentCast AVM (address)','$'+x.rentMid+'/mo',x.rentcastUrl]];}
-  if(x.countyRecordsUrl){R.bsa=x.countyRecordsUrl;R.rod=x.countyRecordsUrl;R.city=x.countyRecordsUrl;}
-  if(x.listingSearchUrl)R.listing=x.listingSearchUrl;
-  if(x.taxAnnual)R.curTax='$'+x.taxAnnual+'/yr';
-  if(x.millage){R.millage=x.millage;$('m_mills').value=x.millage;}
-  if(x.taxMonthly){$('i_tax').value=(+x.taxMonthly).toFixed(2);}
-  if(x.insMonthly){$('i_ins').value=(+x.insMonthly).toFixed(2);}
-  if(x.pin) R.legal=R.legal; // keep legal if provided elsewhere
+  const county=x.countyRecordsUrl||('https://publicrecords.netronline.com/state/'+($('state').value||'').toUpperCase());
+  const na='— look up (no API)';
+  const listing=x.listingSearchUrl||('https://www.google.com/search?q='+encodeURIComponent(fullAddr()+' for sale'));
+  R={
+    pin: x.pin||na, legal: na, owner: x.owner||na, listPrice: na, mls: na,
+    style:'—', built:x.built||'—', beds:x.beds||'—', baths:x.baths||'—', sqft:x.sqft||'—', lot:x.lot||'—', found:'—', terms:'—',
+    listing: listing, bsa: county, rod: county, city: county, ownwell: county,
+    estimator: 'https://treas-secure.state.mi.us/ptestimator', rento: x.rentcastUrl||'https://www.rentometer.com/',
+    rentLow: x.rentLow||0, rentMid: x.rentMid||0, rentHigh: x.rentHigh||0,
+    rentComps: x.rentMid? [['RentCast AVM (address)','$'+x.rentMid+'/mo',x.rentcastUrl]] : [],
+    saleComps: [],
+    flood: x.flood||na, floodUrl: x.floodUrl||('https://msc.fema.gov/portal/search?AddressQuery='+encodeURIComponent(fullAddr())),
+    crime: na, crimeUrl: x.crimeUrl||'https://crimegrade.org/',
+    delinquent: na, curTax: x.taxAnnual? ('$'+x.taxAnnual+'/yr') : na,
+    millage: (x.millage!=null?x.millage:''), value:(+$('i_price').value||0)
+  };
+  $('m_val').value=$('i_price').value;
+  $('m_mills').value = (x.millage!=null? x.millage : '');
+  if(x.taxMonthly!=null) $('i_tax').value=(+x.taxMonthly).toFixed(2);
+  if(x.insMonthly!=null) $('i_ins').value=(+x.insMonthly).toFixed(2);
   millage(); insurance(); renderReport();
+  if(!x.rentcastActive){
+    alert('Research complete for '+fullAddr()+'.\n\nAuto-pulled: address/county + FEMA flood zone.\nMISSING (no API without a RentCast key, or no API at all): MLS/list price, legal description, parcel/PIN, comps, tax, liens, millage, crime. These now show \'look up\' with links in the report. Enter the non-homestead millage in the calculator to get property tax.');
+  }
+  window.scrollTo(0,document.getElementById('report').offsetTop-10);
 }
 function runResearch(){
   const payload={address:$('addr').value,city:$('city').value,state:$('state').value,zip:$('zip').value};
