@@ -84,8 +84,10 @@ async function gemini(full, dealType) {
     ' rentLow/rentMid/rentHigh and millage must be numbers. rentComps is an array of [source, figure] pairs.' +
     ' saleComps is an array of [bd/ba, size, price, status]. photos is an array of direct image URLs.' +
     ' compsNote is a short market analysis + investor takeaway + sources. Deal type: ' + (dealType || 'slow flip') + '.';
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key;
-  const body = { contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }] };
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash-latest';
+  const searchTool = /1\.5/.test(model) ? { google_search_retrieval: {} } : { google_search: {} };
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
+  const body = { contents: [{ parts: [{ text: prompt }] }], tools: [searchTool] };
   try {
     const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const j = await r.json();
