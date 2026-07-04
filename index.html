@@ -425,67 +425,33 @@ function openLinks(){
   ['https://www.google.com/maps/search/?api=1&query='+q,'https://www.zillow.com/homes/'+q+'_rb/','https://app.rentcast.io/app?address='+q,'https://publicrecords.netronline.com/state/'+st,'https://msc.fema.gov/portal/search?AddressQuery='+q,'https://crimegrade.org/safest-places-in-'+zip+'/'].forEach(u=>window.open(u,'_blank'));
 }
 function applyResearch(x){
-  const county=x.countyRecordsUrl||('https://publicrecords.netronline.com/state/'+($('state').value||'').toUpperCase());
-  const na='— look up (no API)';
-  const listing=x.listingSearchUrl||('https://www.google.com/search?q='+encodeURIComponent(fullAddr()+' for sale'));
+  var county=x.countyRecordsUrl||('https://publicrecords.netronline.com/state/'+($('state').value||'').toUpperCase());
+  var na='— look up (no API)';
+  var g=function(v,d){return (v===null||v===undefined||v==='')?d:v;};
+  var listing=x.listingSearchUrl||('https://www.google.com/search?q='+encodeURIComponent(fullAddr()+' for sale'));
   R={
-    pin: x.pin||na, legal: na, owner: x.owner||na, listPrice: na, mls: na,
-    style:'—', built:x.built||'—', beds:x.beds||'—', baths:x.baths||'—', sqft:x.sqft||'—', lot:x.lot||'—', found:'—', terms:'—',
-    listing: listing, bsa: county, rod: county, city: county, ownwell: county,
-    estimator: 'https://treas-secure.state.mi.us/ptestimator', rento: x.rentcastUrl||'https://www.rentometer.com/',
-    rentLow: x.rentLow||0, rentMid: x.rentMid||0, rentHigh: x.rentHigh||0,
-    rentComps: x.rentMid? [['RentCast AVM (address)','$'+x.rentMid+'/mo',x.rentcastUrl]] : [],
-    saleComps: [],
-    flood: x.flood||na, floodUrl: x.floodUrl||('https://msc.fema.gov/portal/search?AddressQuery='+encodeURIComponent(fullAddr())),
-    crime: na, crimeUrl: x.crimeUrl||'https://crimegrade.org/',
-    delinquent: na, curTax: x.taxAnnual? ('$'+x.taxAnnual+'/yr') : na,
-    millage: (x.millage!=null?x.millage:''), value:(+$('i_price').value||0),
-    lat: x.lat||null, lng: x.lng||null, photos: Array.isArray(x.photos)?x.photos:[]
+    pin:g(x.pin,na), legal:g(x.legal,na), owner:g(x.owner,na),
+    listPrice:g(x.listPrice,'—'), mls:g(x.mls,'—'),
+    style:g(x.style,'—'), built:g(x.built,'—'), beds:g(x.beds,'—'), baths:g(x.baths,'—'),
+    sqft:g(x.sqft,'—'), lot:g(x.lot,'—'), found:'—', terms:g(x.terms,'—'),
+    listing:listing, bsa:county, rod:county, city:county, ownwell:county,
+    estimator:'https://treas-secure.state.mi.us/ptestimator', rento:x.rentcastUrl||'https://www.rentometer.com/',
+    rentLow:+x.rentLow||0, rentMid:+x.rentMid||0, rentHigh:+x.rentHigh||0,
+    rentComps: Array.isArray(x.rentComps)? x.rentComps.map(function(c){return [c[0],c[1],x.rentcastUrl||''];}) : (x.rentMid?[['Rent estimate','$'+x.rentMid+'/mo',x.rentcastUrl||'']]:[]),
+    saleComps: Array.isArray(x.saleComps)? x.saleComps : [],
+    flood:g(x.flood,na), floodUrl:x.floodUrl||('https://msc.fema.gov/portal/search?AddressQuery='+encodeURIComponent(fullAddr())),
+    crime:g(x.crime,na), crimeUrl:x.crimeUrl||'https://crimegrade.org/',
+    delinquent:g(x.delinquent,na), curTax:g(x.curTax,(x.taxAnnual?('$'+x.taxAnnual+'/yr'):na)),
+    millage:(x.millage!=null?x.millage:''), value:(+$('i_price').value||0),
+    compsNote:g(x.compsNote,''), lat:x.lat||null, lng:x.lng||null, photos:Array.isArray(x.photos)?x.photos:[]
   };
-  $('m_val').value=$('i_price').value;
-  $('m_mills').value = (x.millage!=null? x.millage : '');
+  if(x.millage!=null && $('m_mills')) $('m_mills').value=x.millage;
   if(x.taxMonthly!=null) $('i_tax').value=(+x.taxMonthly).toFixed(2);
   if(x.insMonthly!=null) $('i_ins').value=(+x.insMonthly).toFixed(2);
-  function copyCompsReq(){
-  var beds=($('m_val')?'':'');
-  var msg='Run rental comps for: '+fullAddr()+'. Bedrooms/bathrooms/property type as applicable. Return the full report: LOW / MEDIAN / HIGH monthly rent, comp breakdown citing each source with figures, market analysis (neighborhood, tenant pool, vacancy risk, Section 8), and an investor takeaway by condition tier with sources. Then give me a compact block I can paste back: LOW=, MEDIAN=, HIGH= (numbers), followed by a short ANALYSIS paragraph and sources.';
-  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert('Comps request copied. Paste it to Claude in chat, then paste the result back into the boxes here.');});}
-  else{prompt('Copy this request and paste to Claude:', msg);}
-}
-function applyComps(){
-  R.rentLow=+$('c_low').value||0; R.rentMid=+$('c_med').value||0; R.rentHigh=+$('c_high').value||0;
-  R.compsNote=$('c_notes').value.trim();
-  R.rentComps=[];
-  renderReport();
+  if(($('state').value||'').toUpperCase()!=='MI' && $('m_sev')) $('m_sev').value='0';
+  millage(); insurance(); renderReport();
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
-}
-function copyFullReq(){
-  var msg='Research this property and return ONLY a JSON object (no prose, no code fence) with these keys: beds, baths, sqft, built, lot, style, owner, terms, condition, pin, legal, mls, listPrice, curTax (annual, like "$965/yr"), millage (number = non-homestead mills), delinquent, flood, crime, rentLow, rentMid, rentHigh, rentComps (array of [source, figure]), saleComps (array of [bd/ba, size, price, status]), compsNote (market analysis + investor takeaway + sources), photos (array of direct image URLs to listing/street-view photos), lat, lng. Use null for anything unknown. Property: '+fullAddr()+', deal type '+$('dealtype').value+'.';
-  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert('Full research request copied. Paste it to Claude, then paste the JSON back into the box and Apply.');});}
-  else{prompt('Copy this request and paste to Claude:', msg);}
-}
-function applyFull(){
-  var raw=$('rimport').value.trim();
-  if(!raw){alert('Paste the JSON research block first.');return;}
-  raw=raw.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
-  var j; try{ j=JSON.parse(raw); }catch(e){ alert('That is not valid JSON: '+e.message); return; }
-  var g=function(k,d){return (j[k]===undefined||j[k]===null||j[k]==='')?d:j[k];};
-  R.beds=g('beds','—'); R.baths=g('baths','—'); R.sqft=g('sqft','—'); R.built=g('built','—');
-  R.lot=g('lot','—'); R.style=g('style','—'); R.owner=g('owner','— look up'); R.terms=g('terms','—');
-  R.pin=g('pin','— look up'); R.legal=g('legal','— look up'); R.mls=g('mls','—'); R.listPrice=g('listPrice','—');
-  R.curTax=g('curTax','— look up'); R.delinquent=g('delinquent','— look up');
-  R.flood=g('flood',R.flood); R.crime=g('crime','— look up');
-  if(j.rentLow!=null)R.rentLow=+j.rentLow; if(j.rentMid!=null)R.rentMid=+j.rentMid; if(j.rentHigh!=null)R.rentHigh=+j.rentHigh;
-  if(Array.isArray(j.rentComps))R.rentComps=j.rentComps.map(function(c){return [c[0],c[1],R.rento];});
-  if(Array.isArray(j.saleComps))R.saleComps=j.saleComps;
-  if(j.compsNote)R.compsNote=j.compsNote;
-  if(j.millage!=null){R.millage=j.millage; if($('m_mills'))$('m_mills').value=j.millage;}
-  if(Array.isArray(j.photos))R.photos=j.photos; if(j.lat)R.lat=j.lat; if(j.lng)R.lng=j.lng;
-  showBusy('Applying research…'); millage(); insurance(); renderReport();
-  window.scrollTo(0,document.getElementById('report').offsetTop-10); setTimeout(hideBusy,400);
-}
-millage(); insurance(); renderReport();
-  window.scrollTo(0,document.getElementById('report').offsetTop-10);
+  if(x.geminiError){ console.log('Gemini: '+x.geminiError); }
 }
 function runResearch(){
   const payload={address:$('addr').value,city:$('city').value,state:$('state').value,zip:$('zip').value};

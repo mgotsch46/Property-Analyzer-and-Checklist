@@ -13,10 +13,10 @@ app.get('/api/health', (req, res) => {
 
 app.post('/api/run', async (req, res) => {
   try {
-    const { address, city, state, zip } = req.body || {};
+    const { address, city, state, zip, dealtype } = req.body || {};
     const full = [address, city, state, zip].filter(Boolean).join(', ');
     if (!full) return res.status(400).json({ error: 'address required' });
-    const data = await runResearch({ address, city, state, zip, full });
+    const data = await runResearch({ address, city, state, zip, full, dealType: dealtype });
     res.json(data);
   } catch (e) {
     console.error(e);
