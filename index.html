@@ -162,6 +162,20 @@
   </div>
 
   <div class="card">
+    <h2>Rental Comps <span class="hint">(engine mode — powered by Claude, no key needed)</span></h2>
+    <div class="note">Uses the property entered above. 1) Click <b>Copy comps request</b> and paste it to Claude in chat. 2) Paste Claude's LOW / MEDIAN / HIGH and the analysis back here, then Apply — it drops into the report &amp; PDF.</div>
+    <div class="btnrow"><button class="b-sec" onclick="copyCompsReq()">Copy comps request for Claude</button></div>
+    <div class="row3">
+      <div><label>Low ($/mo)</label><input id="c_low" class="calc" type="number"></div>
+      <div><label>Median ($/mo)</label><input id="c_med" class="calc" type="number"></div>
+      <div><label>High / Sec 8 ceiling ($/mo)</label><input id="c_high" class="calc" type="number"></div>
+    </div>
+    <label>Comps analysis &amp; sources (paste Claude's result)</label>
+    <textarea id="c_notes" rows="5" style="width:100%;border:1px solid #cdd4de;border-radius:6px;padding:8px;font-size:12.5px;font-family:inherit"></textarea>
+    <div class="btnrow"><button class="b-cal" onclick="applyComps()">Apply comps to report</button></div>
+  </div>
+
+  <div class="card">
     <div class="btnrow">
       <button class="b-run" onclick="runResearch()">&#9654; RUN research for this address</button>
       <button class="b-pdf" onclick="downloadPDF()">&#8681; Download PDF</button>
@@ -348,6 +362,7 @@ function renderReport(){
   else rc+='<tr><td colspan="3">No automated comps (add RentCast key or look up manually) — <a class="src" href="'+R.rento+'" target="_blank">Rentometer</a></td></tr>';
   rc+='</table><table style="margin-top:6px"><tr><th>Low</th><th class="r">Middle</th><th class="r">High (Sec 8 ceiling)</th></tr>'
     +'<tr><td>'+money(R.rentLow)+'/mo</td><td class="r">'+money(R.rentMid)+'/mo</td><td class="r">'+money(R.rentHigh)+'/mo</td></tr></table>';
+  if(R.compsNote){ rc+='<div class="note" style="white-space:pre-wrap;font-size:12px;color:#1b2430;margin-top:8px">'+esc(R.compsNote)+'</div>'; }
   $('rep_rent').innerHTML=rc;
   let sc='<table><tr><th>Bd/Ba</th><th>Size</th><th class="r">Price</th><th class="r">Status</th></tr>';
   if(R.saleComps.length) sc+=R.saleComps.map(c=>'<tr><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="r">'+c[2]+'</td><td class="r">'+c[3]+'</td></tr>').join('');
@@ -411,7 +426,20 @@ function applyResearch(x){
   $('m_mills').value = (x.millage!=null? x.millage : '');
   if(x.taxMonthly!=null) $('i_tax').value=(+x.taxMonthly).toFixed(2);
   if(x.insMonthly!=null) $('i_ins').value=(+x.insMonthly).toFixed(2);
-  millage(); insurance(); renderReport();
+  function copyCompsReq(){
+  var beds=($('m_val')?'':'');
+  var msg='Run rental comps for: '+fullAddr()+'. Bedrooms/bathrooms/property type as applicable. Return the full report: LOW / MEDIAN / HIGH monthly rent, comp breakdown citing each source with figures, market analysis (neighborhood, tenant pool, vacancy risk, Section 8), and an investor takeaway by condition tier with sources. Then give me a compact block I can paste back: LOW=, MEDIAN=, HIGH= (numbers), followed by a short ANALYSIS paragraph and sources.';
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert('Comps request copied. Paste it to Claude in chat, then paste the result back into the boxes here.');});}
+  else{prompt('Copy this request and paste to Claude:', msg);}
+}
+function applyComps(){
+  R.rentLow=+$('c_low').value||0; R.rentMid=+$('c_med').value||0; R.rentHigh=+$('c_high').value||0;
+  R.compsNote=$('c_notes').value.trim();
+  R.rentComps=[];
+  renderReport();
+  window.scrollTo(0,document.getElementById('report').offsetTop-10);
+}
+millage(); insurance(); renderReport();
   window.scrollTo(0,document.getElementById('report').offsetTop-10);
 }
 function runResearch(){
