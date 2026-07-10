@@ -51,7 +51,9 @@ a.src{color:#1a56c4}
   <button class="btn" onclick="runResults()" style="background:#1f8f4e">RUN RESULTS</button>
   <button class="btn" onclick="window.print()">Save / Print PDF</button>
   <button class="btn alt" onclick="clearAll()">Start over (clear)</button>
+  <button class="btn" style="background:#6b3fa0" onclick="askClaudeResearch()">Ask Claude to research</button>
   <span class="mini">Type an address to Claude in chat to auto-fill the research; or enter values manually.</span>
+  <div id="claudePrompt" style="display:none;margin-top:8px"><label class="mini">Copied — paste this to Claude in chat:</label><textarea id="cp_text" readonly style="width:100%;height:64px;font-size:12px;padding:6px;border:1px solid #cfd6e2;border-radius:6px"></textarea></div>
 </div>
 
 <div id="soldbadge"></div>
@@ -339,9 +341,9 @@ function renderRisk(){
 }
 function renderTodo(){
   var TODO=['Confirm PID & legal on county records','Confirm taxable value + PRE / homestead status',
-    'Search county code & blight cases','Interior inspection + rehab scope & budget','Roof & foundation assessment',
-    'Verify water service line status','Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote',
-    'Review prelim title commitment','Review settlement statement before wire'];
+    'Search county code & blight cases','BOG walk-through','Roof & foundation assessment',
+    'Check utilities for inspection requirement','Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote',
+    'Review prelim title commitment','Verify wire instructions','Review settlement statement before wire'];
   $('rep_todo').innerHTML='<div style="columns:2;column-gap:18px">'+TODO.map(function(t){
     return '<label style="display:block;font-size:12px;color:#1b2430;margin:3px 0"><input type="checkbox" style="width:auto;margin-right:6px">'+t+'</label>';}).join('')+'</div>';
 }
@@ -370,6 +372,14 @@ function loadResearch(){
   renderRisk(); renderTodo(); buildLinks(); millage(); insurance(); calc();
 }
 
+function askClaudeResearch(){
+  var a=fullAddr()||'[enter the property address above]';
+  var p="Research this property for my RenewEQ analyzer and fill the panel: "+a+
+    ". From Zillow/Trulia and county records, pull the property summary (style, beds, baths, sqft, year built, lot, foundation, terms, owner, condition), the parcel/PIN, MLS#, list or last-sold price, property tax and assessed value; and gather rental comps (low / middle / high $/mo) and 3-5 recent sale comps (address, size, price, status). Then update the analyzer.";
+  var t=$('cp_text'); t.value=p; $('claudePrompt').style.display='block';
+  try{ t.select(); document.execCommand('copy'); }catch(e){}
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(p); }catch(e){}
+}
 function runResults(){millage();insurance();calc();var b=$('rep_banner');b.style.outline='3px solid #1f8f4e';setTimeout(function(){b.style.transition='outline .6s';b.style.outline='none';},60);b.scrollIntoView({behavior:'smooth',block:'center'});}
 function clearAll(){
   ['addr','city','state','zip','pin','mls','listp','m_val','m_mills','i_price','i_pmlamt','i_tbsale','i_tbdown','i_ustate',
