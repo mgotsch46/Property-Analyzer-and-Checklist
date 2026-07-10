@@ -74,7 +74,7 @@ a.src{color:#1a56c4}
     </div>
 
     <div class="card">
-      <h2>Millage &amp; Tax (state default, editable)</h2>
+      <h2>Millage &amp; Tax (state default = effective mills on market value; editable)</h2>
       <div class="row3">
         <div><label>True cash value ($)</label><input id="m_val" type="number" oninput="millage()"></div>
         <div><label>Millage (mills)</label><input id="m_mills" type="number" step="0.1" oninput="millage()"></div>
@@ -189,16 +189,16 @@ a.src{color:#1a56c4}
 /* ===== per-state defaults + record/land-bank/code links ===== */
 var STATES={
  MI:{mills:47.6,rate:8,records:"https://bsaonline.com",recordsName:"BS&A Online (MI parcel/tax)",landbank:"https://www.michigan.gov/landbank",code:"https://www.michigan.gov/"},
- MO:{mills:75,rate:8,records:"https://www.stlouiscountymo.gov/st-louis-county-departments/revenue/",recordsName:"County Assessor / Collector (MO)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
- IL:{mills:75,rate:8,records:"https://www.cookcountyassessor.com/",recordsName:"County Assessor (IL / Cook)",landbank:"https://www.cookcountylandbank.org/",code:"https://www.chicago.gov/city/en/depts/bldgs.html"},
- IA:{mills:35,rate:8,records:"https://www.iowaassessors.com/",recordsName:"Iowa Assessors (statewide)",landbank:"https://www.investdsm.org/",code:"https://www.dsm.city/departments/permit_and_development_center/"},
- IN:{mills:20,rate:8,records:"https://beacon.schneidercorp.com/",recordsName:"Beacon / Schneider GIS (IN statewide)",landbank:"https://renewindianapolis.org/",code:"https://www.indy.gov/agency/department-of-business-and-neighborhood-services"},
- OH:{mills:60,rate:8,records:"https://www.cuyahogacounty.gov/fiscal-officer",recordsName:"County Auditor (OH)",landbank:"https://ohiolandbanks.org/",code:"https://www.neighborhoodprogress.org/"},
- AL:{mills:40,rate:8,records:"https://www.deltacomputersystems.com/AL/index.html",recordsName:"Delta Computer Systems (AL counties)",landbank:"https://landbank.alabama.gov/",code:"https://www.birminghamal.gov/"},
- MS:{mills:100,rate:8,records:"https://www.deltacomputersystems.com/msindex.html",recordsName:"Delta Computer Systems (MS statewide)",landbank:"",code:"https://www.jacksonms.gov/"},
- GA:{mills:35,rate:8,records:"https://qpublic.schneidercorp.com/",recordsName:"qPublic / Schneider (GA statewide)",landbank:"https://www.atlantalandbank.org/",code:"https://www.atlantaga.gov/government/departments/city-planning"},
- WI:{mills:25,rate:8,records:"https://county.milwaukee.gov/EN/Treasurer",recordsName:"County Treasurer (WI)",landbank:"https://city.milwaukee.gov/DCD",code:"https://city.milwaukee.gov/dns"},
- TN:{mills:40,rate:8,records:"https://assessment.cot.tn.gov/RE_Assessment/",recordsName:"TN Comptroller property search (statewide)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
+ MO:{mills:10,rate:8,records:"https://www.stlouiscountymo.gov/st-louis-county-departments/revenue/",recordsName:"County Assessor / Collector (MO)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
+ IL:{mills:21,rate:8,records:"https://www.cookcountyassessor.com/",recordsName:"County Assessor (IL / Cook)",landbank:"https://www.cookcountylandbank.org/",code:"https://www.chicago.gov/city/en/depts/bldgs.html"},
+ IA:{mills:15,rate:8,records:"https://www.iowaassessors.com/",recordsName:"Iowa Assessors (statewide)",landbank:"https://www.investdsm.org/",code:"https://www.dsm.city/departments/permit_and_development_center/"},
+ IN:{mills:9,rate:8,records:"https://beacon.schneidercorp.com/",recordsName:"Beacon / Schneider GIS (IN statewide)",landbank:"https://renewindianapolis.org/",code:"https://www.indy.gov/agency/department-of-business-and-neighborhood-services"},
+ OH:{mills:16,rate:8,records:"https://www.mcrealestate.org/",recordsName:"County Auditor property search (OH)",landbank:"https://www.mclandbank.com/",code:"https://www.daytonohio.gov/168/Nuisance-Abatement"},
+ AL:{mills:5,rate:8,records:"https://www.deltacomputersystems.com/AL/index.html",recordsName:"Delta Computer Systems (AL counties)",landbank:"https://landbank.alabama.gov/",code:"https://www.birminghamal.gov/"},
+ MS:{mills:9,rate:8,records:"https://www.deltacomputersystems.com/msindex.html",recordsName:"Delta Computer Systems (MS statewide)",landbank:"",code:"https://www.jacksonms.gov/"},
+ GA:{mills:9,rate:8,records:"https://qpublic.schneidercorp.com/",recordsName:"qPublic / Schneider (GA statewide)",landbank:"https://www.atlantalandbank.org/",code:"https://www.atlantaga.gov/government/departments/city-planning"},
+ WI:{mills:18,rate:8,records:"https://county.milwaukee.gov/EN/Treasurer",recordsName:"County Treasurer (WI)",landbank:"https://city.milwaukee.gov/DCD",code:"https://city.milwaukee.gov/dns"},
+ TN:{mills:7,rate:8,records:"https://assessment.cot.tn.gov/RE_Assessment/",recordsName:"TN Comptroller property search (statewide)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
 };
 
 var RESEARCH = {};  // Claude fills this when you give an address
@@ -242,9 +242,12 @@ function buildLinks(){
   L.push(['Street View','https://www.google.com/maps?q='+enc(a)+'&layer=c']);
   L.push(['Flood zone (FEMA)','https://msc.fema.gov/portal/search?AddressQuery='+enc(a)]);
   L.push(['Crime statistics', city&&st ? 'https://www.areavibes.com/'+enc(city.toLowerCase())+'-'+enc(st.toLowerCase())+'/crime/' : 'https://crimegrade.org/']);
-  if(s.records)L.push(['County records &mdash; PID / legal / taxes ('+ (s.recordsName||st) +')',s.records]);
-  if(s.code)L.push(['Code &amp; blight cases ('+st+')',s.code]);
-  if(s.landbank)L.push(['Land bank ('+st+')',s.landbank]);
+  var R=RESEARCH||{};
+  var recUrl=R.recordsUrl||s.records, recName=R.recordsName||s.recordsName||st;
+  var codeUrl=R.codeUrl||s.code, lbUrl=R.landbankUrl||s.landbank;
+  if(recUrl)L.push(['County records &mdash; PID / legal / taxes ('+recName+')',recUrl]);
+  if(codeUrl)L.push(['Code &amp; blight cases',codeUrl]);
+  if(lbUrl)L.push(['Land bank',lbUrl]);
   $('rep_links').innerHTML=L.map(function(x){return '<a class="src" href="'+x[1]+'" target="_blank">'+x[0]+' &#8599;</a>';}).join('');
 }
 
