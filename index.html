@@ -40,6 +40,11 @@ a.src{color:#1a56c4}
 .mini{font-size:11px;color:#66707d}
 .cmpgrid input{font-size:12px;padding:5px 6px}
 @media print{.noprint{display:none}body{background:#fff}.card{break-inside:avoid}}
+.researchbar{display:none;margin:10px 0;background:#eef2f8;border:1px solid #cfd6e2;border-radius:8px;padding:10px 12px}
+.researchbar .txt{font-size:12px;color:#1f4e9c;font-weight:700;margin-bottom:6px}
+.track{height:6px;background:#dbe3f0;border-radius:4px;overflow:hidden}
+.track>i{display:block;height:100%;width:40%;background:#1f4e9c;border-radius:4px;animation:slide 1.2s ease-in-out infinite}
+@keyframes slide{0%{margin-left:-40%}100%{margin-left:100%}}
 </style>
 </head>
 <body>
@@ -53,6 +58,7 @@ a.src{color:#1a56c4}
   <button class="btn alt" onclick="clearAll()">Start over (clear)</button>
   <button class="btn" style="background:#6b3fa0" onclick="askClaudeResearch()">Ask Claude to research</button>
   <span class="mini">Type an address to Claude in chat to auto-fill the research; or enter values manually.</span>
+  <div id="researchBar" class="researchbar noprint"><div class="txt">&#128269; Claude is researching this address &mdash; property summary, comps, tax &amp; records<span id="rbdots"></span></div><div class="track"><i></i></div><div class="mini" style="margin-top:6px">This runs in your Claude chat. The panel fills in automatically when Claude finishes.</div></div>
   <div id="claudePrompt" style="display:none;margin-top:8px"><label class="mini">Copied — paste this to Claude in chat:</label><textarea id="cp_text" readonly style="width:100%;height:64px;font-size:12px;padding:6px;border:1px solid #cfd6e2;border-radius:6px"></textarea></div>
 </div>
 
@@ -302,9 +308,11 @@ function deal(){
 function row(k,v){return '<tr><td>'+k+'</td><td class="r">'+v+'</td></tr>'}
 function calc(){
   var c=deal(), pml=c.d.fundingType==='PML';
+  var p6=(pml?c.profit2:c.profit1);
   $('rep_kpi').innerHTML=[
     ['Cash Invested',money(c.cashInvested),''],
-    ['Monthly Profit',money2(c.profit1),c.profit1>=500?'g':c.profit1>=0?'w':'b'],
+    ['Profit Yr 1–5',money2(c.profit1),c.profit1>=500?'g':c.profit1>=0?'w':'b'],
+    ['Profit Yr 6–30',money2(p6),p6>=500?'g':p6>=0?'w':'b'],
     ['Cash-on-Cash',pct(c.coc1,0),c.coc1>=10?'g':c.coc1>=6?'w':'b'],
     ['Projected ROI',pct(c.projROI,0),c.projROI>=100?'g':'w'],
     ['Carry / mo',money2(c.carry),''],
@@ -322,8 +330,8 @@ function calc(){
     +(pml?row('Loan payment /mo',money2(c.pmlPay)):row('Opportunity cost /mo',money2(c.oppMo)))
     +row('Total carry /mo',money2(c.carry))
     +row('Wrap loan / payment',money(c.tbLoan)+' / '+money2(c.tbPay))
-    +row('<b>Monthly profit — '+p1lab+'</b>','<b>'+money2(c.profit1)+'</b>')
-    +(pml?row('Monthly profit — after payoff',money2(c.profit2)):'')
+    +row('<b>Monthly profit — Yr 1–5'+(pml?' (loan active)':'')+'</b>','<b>'+money2(c.profit1)+'</b>')
+    +row('<b>Monthly profit — Yr 6–30'+(pml?' (loan paid off)':' (ongoing)')+'</b>','<b>'+money2(p6)+'</b>')
     +row('Monthly margin',pct(c.margin1))
     +row('Cash-on-cash',pct(c.coc1))
     +row('Projected profit (wrap term)',money(c.projProfit))
@@ -369,6 +377,7 @@ function loadResearch(){
   $('saleRows').innerHTML=''; (R.saleComps||[]).forEach(function(c){addSale(c[0],c[1],c[2],c[3]);}); if(!(R.saleComps&&R.saleComps.length)){addSale();addSale();}
   if(has('arv'))$('s_arv').value=R.arv;
   if(has('state'))applyState();
+  if(has('addr')||has('style')){ var rb=$('researchBar'); if(rb){rb.style.display='none';} if(window._rbTimer)clearInterval(window._rbTimer); }
   renderRisk(); renderTodo(); buildLinks(); millage(); insurance(); calc();
 }
 
@@ -377,6 +386,9 @@ function askClaudeResearch(){
   var p="Research this property for my RenewEQ analyzer and fill the panel: "+a+
     ". From Zillow/Trulia and county records, pull the property summary (style, beds, baths, sqft, year built, lot, foundation, terms, owner, condition), the parcel/PIN, MLS#, list or last-sold price, property tax and assessed value; and gather rental comps (low / middle / high $/mo) and 3-5 recent sale comps (address, size, price, status). Then update the analyzer.";
   var t=$('cp_text'); t.value=p; $('claudePrompt').style.display='block';
+  var rb=$('researchBar'); rb.style.display='block';
+  if(window._rbTimer)clearInterval(window._rbTimer);
+  var n=0; window._rbTimer=setInterval(function(){n=(n+1)%4;$('rbdots').textContent='.'.repeat(n);},450);
   try{ t.select(); document.execCommand('copy'); }catch(e){}
   try{ if(navigator.clipboard) navigator.clipboard.writeText(p); }catch(e){}
 }
@@ -388,7 +400,7 @@ function clearAll(){
   $('in_rate').value=8;$('in_dwell').value=50000;$('in_liab').value='450';$('m_sev').value='1';
   $('i_pmlrate').value=10;$('i_pmlterm').value=60;$('i_tbrate').value=10.9;$('i_tbterm').value=360;
   $('i_funding').value='Self-Funded';$('dealtype').selectedIndex=0;$('i_upins').value='';
-  $('soldbadge').innerHTML=''; RESEARCH={};
+  $('soldbadge').innerHTML=''; RESEARCH={}; if($('researchBar'))$('researchBar').style.display='none'; if(window._rbTimer)clearInterval(window._rbTimer);
   $('rentRows').innerHTML='';addRent();addRent(); $('saleRows').innerHTML='';addSale();addSale();
   renderRisk();renderTodo();buildLinks();millage();insurance();calc();
 }
