@@ -86,7 +86,7 @@ a.src{color:#1a56c4}
     </div>
 
     <div class="card">
-      <h2>Insurance &mdash; ACV only (state default, editable)</h2>
+      <h2>Insurance &mdash; ACV only (rate auto-set by state; editable)</h2>
       <div class="row3">
         <div><label>Dwelling (ACV $)</label><input id="in_dwell" type="number" value="50000" oninput="insurance()"></div>
         <div><label>Rate / $1,000</label><input id="in_rate" type="number" step="0.5" value="8" oninput="insurance()"></div>
@@ -124,17 +124,6 @@ a.src{color:#1a56c4}
       </div>
       <div class="row"><div><label>Buyer term (mo)</label><input id="i_tbterm" type="number" value="360" oninput="calc()"></div><div></div></div>
     </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div>
-    <div class="card">
-      <h2>Deal Analysis</h2>
-      <div id="rep_banner" class="banner mid">&mdash;</div>
-      <div id="rep_kpi" class="kpis"></div>
-      <table id="rep_deal" style="margin-top:10px"></table>
-    </div>
-
     <div class="card">
       <h2>Property Summary (editable)</h2>
       <div class="row3">
@@ -148,6 +137,21 @@ a.src{color:#1a56c4}
       </div>
       <label>Condition / notes</label><input id="p_cond">
     </div>
+    <div class="card">
+      <h2>Remaining Items Checklist</h2>
+      <div id="rep_todo"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <div class="card">
+      <h2>Deal Analysis</h2>
+      <div id="rep_banner" class="banner mid">&mdash;</div>
+      <div id="rep_kpi" class="kpis"></div>
+      <table id="rep_deal" style="margin-top:10px"></table>
+    </div>
+
 
     <div class="card">
       <h2>Rental Comps (editable)</h2>
@@ -178,10 +182,6 @@ a.src{color:#1a56c4}
       <table id="rep_risk"></table>
     </div>
 
-    <div class="card">
-      <h2>Remaining Items Checklist</h2>
-      <div id="rep_todo"></div>
-    </div>
   </div>
 </div>
 <div class="sub" style="margin-top:8px">Not investment, legal, or tax advice. Verify all figures before an offer.</div>
@@ -191,16 +191,16 @@ a.src{color:#1a56c4}
 /* ===== per-state defaults + record/land-bank/code links ===== */
 var STATES={
  MI:{mills:47.6,rate:8,records:"https://bsaonline.com",recordsName:"BS&A Online (MI parcel/tax)",landbank:"https://www.michigan.gov/landbank",code:"https://www.michigan.gov/"},
- MO:{mills:10,rate:8,records:"https://www.missouriassessors.com/",recordsName:"MissouriAssessors.com (statewide)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
+ MO:{mills:10,rate:9,records:"https://www.missouriassessors.com/",recordsName:"MissouriAssessors.com (statewide)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
  IL:{mills:21,rate:8,records:"https://www.illinoisassessors.com/",recordsName:"IllinoisAssessors.com (statewide)",landbank:"https://www.cookcountylandbank.org/",code:"https://www.chicago.gov/city/en/depts/bldgs.html"},
  IA:{mills:15,rate:8,records:"https://www.iowaassessors.com/",recordsName:"Iowa Assessors (statewide)",landbank:"https://www.investdsm.org/",code:"https://www.dsm.city/departments/permit_and_development_center/"},
  IN:{mills:9,rate:8,records:"https://beacon.schneidercorp.com/",recordsName:"Beacon / Schneider GIS (IN statewide)",landbank:"https://renewindianapolis.org/",code:"https://www.indy.gov/agency/department-of-business-and-neighborhood-services"},
  OH:{mills:16,rate:8,records:"https://www.mcrealestate.org/",recordsName:"County Auditor property search (OH)",landbank:"https://www.mclandbank.com/",code:"https://www.daytonohio.gov/168/Nuisance-Abatement"},
- AL:{mills:5,rate:8,records:"https://www.alabamagis.com/",recordsName:"AlabamaGIS / Flagship (many AL counties)",landbank:"https://landbank.alabama.gov/",code:"https://www.birminghamal.gov/"},
- MS:{mills:9,rate:8,records:"https://www.deltacomputersystems.com/search.html",recordsName:"Delta Computer Systems (most MS counties)",landbank:"",code:"https://www.jacksonms.gov/"},
- GA:{mills:9,rate:8,records:"https://qpublic.schneidercorp.com/",recordsName:"qPublic / Schneider (GA statewide)",landbank:"https://www.atlantalandbank.org/",code:"https://www.atlantaga.gov/government/departments/city-planning"},
+ AL:{mills:5,rate:13,records:"https://www.alabamagis.com/",recordsName:"AlabamaGIS / Flagship (many AL counties)",landbank:"https://landbank.alabama.gov/",code:"https://www.birminghamal.gov/"},
+ MS:{mills:9,rate:13,records:"https://www.deltacomputersystems.com/search.html",recordsName:"Delta Computer Systems (most MS counties)",landbank:"",code:"https://www.jacksonms.gov/"},
+ GA:{mills:9,rate:10,records:"https://qpublic.schneidercorp.com/",recordsName:"qPublic / Schneider (GA statewide)",landbank:"https://www.atlantalandbank.org/",code:"https://www.atlantaga.gov/government/departments/city-planning"},
  WI:{mills:18,rate:8,records:"https://county.milwaukee.gov/EN/Treasurer",recordsName:"County Treasurer (WI)",landbank:"https://city.milwaukee.gov/DCD",code:"https://city.milwaukee.gov/dns"},
- TN:{mills:7,rate:8,records:"https://assessment.cot.tn.gov/TPAD",recordsName:"TN Comptroller property search (statewide, 86 counties)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
+ TN:{mills:7,rate:9,records:"https://assessment.cot.tn.gov/TPAD",recordsName:"TN Comptroller property search (statewide, 86 counties)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
 };
 
 var RESEARCH = {};  // Claude fills this when you give an address
