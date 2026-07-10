@@ -7,11 +7,11 @@
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:#f4f6fa;color:#1b2430;font:14px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-.wrap{max-width:1080px;margin:0 auto;padding:18px}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
 h1{font-size:20px;margin:0 0 2px;color:#1f4e9c}
 .sub{color:#66707d;font-size:12px;margin-bottom:14px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:820px){.grid{grid-template-columns:1fr}}
+@media(max-width:840px){.grid{grid-template-columns:1fr}}
 .card{background:#fff;border:1px solid #e2e7ef;border-radius:10px;padding:14px;margin-bottom:16px}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#1f4e9c;margin:0 0 10px}
 label{display:block;font-size:11px;color:#66707d;margin:6px 0 2px}
@@ -21,8 +21,9 @@ input[readonly]{background:#eef2f8;color:#1b2430;font-weight:600}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .btn{background:#1f4e9c;color:#fff;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
 .btn.alt{background:#eef2f8;color:#1f4e9c;border:1px solid #cfd6e2}
+.btn.sm{padding:5px 9px;font-size:12px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:840px){.kpis{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:#f7f9fc;border:1px solid #e2e7ef;border-radius:8px;padding:8px;text-align:center}
 .kpi .v{font-size:15px;font-weight:700}
 .kpi .v.g{color:#1f8f4e}.kpi .v.b{color:#c0392b}.kpi .v.w{color:#8a6d00}
@@ -30,79 +31,66 @@ input[readonly]{background:#eef2f8;color:#1b2430;font-weight:600}
 .banner{padding:9px;border-radius:7px;font-weight:700;text-align:center;margin:10px 0}
 .banner.ok{background:#e5f5ec;color:#1f8f4e}.banner.mid{background:#fbf3dd;color:#8a6d00}.banner.no{background:#fbe5e2;color:#c0392b}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{text-align:left;padding:4px 6px;border-bottom:1px solid #eef1f6}
+th,td{text-align:left;padding:4px 5px;border-bottom:1px solid #eef1f6}
 td.r,th.r{text-align:right}
 a.src{color:#1a56c4}
+.links a{display:inline-block;margin:2px 10px 2px 0;color:#1a56c4;font-size:12px}
 .note{font-size:11px;color:#66707d;margin-top:6px}
 .status-sold{background:#c0392b;color:#fff;padding:6px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-block;margin-bottom:10px}
 .mini{font-size:11px;color:#66707d}
-.flag{background:#fbf3dd;color:#8a6d00;padding:6px 8px;border-radius:6px;font-size:12px;margin-top:6px}
+.cmpgrid input{font-size:12px;padding:5px 6px}
 @media print{.noprint{display:none}body{background:#fff}.card{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>RenewEQ &mdash; Property Acquisition Analyzer</h1>
-<div class="sub">Housed in Claude &#183; deal analyzer + ACV insurance + auto-millage &#183; research filled by Claude (no scraping limits)</div>
+<div class="sub">Deal analyzer &#183; ACV insurance &#183; state millage &#183; auto records links &#183; enter an address, then ask Claude to fill the live research</div>
 
 <div class="noprint" style="margin-bottom:14px">
   <button class="btn" onclick="runResults()" style="background:#1f8f4e">RUN RESULTS</button>
   <button class="btn" onclick="window.print()">Save / Print PDF</button>
   <button class="btn alt" onclick="clearAll()">Start over (clear)</button>
-  <span class="mini">To analyze a new address: type it to Claude in chat &mdash; Claude researches it live and refreshes this panel.</span>
+  <span class="mini">Type an address to Claude in chat to auto-fill the research; or enter values manually.</span>
 </div>
 
 <div id="soldbadge"></div>
 
 <div class="grid">
-  <!-- LEFT: inputs -->
+  <!-- LEFT -->
   <div>
     <div class="card">
       <h2>Property</h2>
-      <div class="row"><div><label>Address</label><input id="addr"></div><div><label>City</label><input id="city"></div></div>
-      <div class="row3"><div><label>State</label><input id="state"></div><div><label>ZIP</label><input id="zip"></div><div><label>Deal type</label>
-        <select id="dealtype"><option>Slow flip &mdash; cash</option><option>Slow flip &mdash; financed</option><option>Wholesale</option></select></div></div>
-      <div class="row3"><div><label>PIN</label><input id="pin"></div><div><label>MLS #</label><input id="mls"></div><div><label>List / last price</label><input id="listp"></div></div>
-    </div>
-
-    <div class="card">
-      <h2>Key Dates</h2>
-      <div class="row"><div><label>PA execution</label><input id="d_pa" type="date"></div><div><label>Closing</label><input id="d_close" type="date"></div></div>
-      <div class="row"><div><label>Inspection deadline</label><input id="d_insp" type="date"></div><div><label>Earnest money due</label><input id="d_em" type="date"></div></div>
-      <div class="row">
-        <div><label>Other date &mdash; label</label><input id="d_x_lbl" placeholder="e.g. Appraisal"></div>
-        <div><label>Other date</label><input id="d_x" type="date"></div>
+      <div class="row"><div><label>Address</label><input id="addr" oninput="buildLinks()"></div><div><label>City</label><input id="city" oninput="buildLinks()"></div></div>
+      <div class="row3">
+        <div><label>State</label>
+          <select id="state" onchange="applyState();buildLinks()">
+            <option value="">—</option><option>MI</option><option>MO</option><option>IL</option><option>IA</option><option>IN</option><option>OH</option><option>AL</option><option>MS</option><option>GA</option><option>WI</option><option>TN</option>
+          </select></div>
+        <div><label>ZIP</label><input id="zip" oninput="buildLinks()"></div>
+        <div><label>Deal type</label><select id="dealtype"><option>Slow flip — cash</option><option>Slow flip — financed</option><option>Wholesale</option></select></div>
       </div>
-      <div style="margin-top:8px"><button class="btn alt" onclick="downloadICS()">Download calendar (.ics)</button>
-      <span class="mini">Adds each date as an all-day reminder (alarm 1 day prior).</span></div>
+      <div class="row3"><div><label>PIN / Parcel</label><input id="pin"></div><div><label>MLS #</label><input id="mls"></div><div><label>List / last price</label><input id="listp"></div></div>
     </div>
 
     <div class="card">
-      <h2>Millage &amp; Tax (auto)</h2>
+      <h2>Millage &amp; Tax (state default, editable)</h2>
       <div class="row3">
         <div><label>True cash value ($)</label><input id="m_val" type="number" oninput="millage()"></div>
         <div><label>Millage (mills)</label><input id="m_mills" type="number" step="0.1" oninput="millage()"></div>
         <div><label>MI SEV (taxable=&frac12;)</label><select id="m_sev" onchange="millage()"><option value="1">Yes (MI)</option><option value="0">No</option></select></div>
       </div>
-      <div class="row3">
-        <div><label>Annual tax</label><input id="m_annual" readonly></div>
-        <div><label>Monthly tax</label><input id="i_tax" readonly></div>
-        <div><label>&nbsp;</label><input value="from county record" readonly></div>
-      </div>
+      <div class="row"><div><label>Annual tax</label><input id="m_annual" readonly></div><div><label>Monthly tax</label><input id="i_tax" readonly></div></div>
     </div>
 
     <div class="card">
-      <h2>Insurance &mdash; ACV only</h2>
+      <h2>Insurance &mdash; ACV only (state default, editable)</h2>
       <div class="row3">
-        <div><label>Dwelling (ACV $)</label><input id="in_dwell" type="number" oninput="insurance()"></div>
-        <div><label>Rate / $1,000</label><input id="in_rate" type="number" step="0.5" oninput="insurance()"></div>
+        <div><label>Dwelling (ACV $)</label><input id="in_dwell" type="number" value="50000" oninput="insurance()"></div>
+        <div><label>Rate / $1,000</label><input id="in_rate" type="number" step="0.5" value="8" oninput="insurance()"></div>
         <div><label>Liability</label><select id="in_liab" onchange="insurance()"><option value="450">$1,000,000</option><option value="250">$300,000</option></select></div>
       </div>
-      <div class="row3">
-        <div><label>Annual premium</label><input id="in_annual" readonly></div>
-        <div><label>Monthly</label><input id="i_ins" readonly></div>
-        <div><label>&nbsp;</label><input value="ACV, not replacement" readonly></div>
-      </div>
+      <div class="row"><div><label>Annual premium</label><input id="in_annual" readonly></div><div><label>Monthly</label><input id="i_ins" readonly></div></div>
     </div>
 
     <div class="card">
@@ -120,7 +108,7 @@ a.src{color:#1a56c4}
       <div class="row3">
         <div><label>Funding</label><select id="i_funding" onchange="calc()"><option value="Self-Funded">Cash (self-funded)</option><option value="PML">Financed (private loan)</option></select></div>
         <div><label>Opp cost % (cash)</label><input id="i_opp" type="number" step="0.5" value="0" oninput="calc()"></div>
-        <div><label>State</label><input id="i_ustate" oninput="calc()"></div>
+        <div><label>State (usury)</label><input id="i_ustate" oninput="calc()"></div>
       </div>
       <div class="row3">
         <div><label>Loan amount (PML)</label><input id="i_pmlamt" type="number" oninput="calc()"></div>
@@ -136,7 +124,7 @@ a.src{color:#1a56c4}
     </div>
   </div>
 
-  <!-- RIGHT: outputs -->
+  <!-- RIGHT -->
   <div>
     <div class="card">
       <h2>Deal Analysis</h2>
@@ -146,22 +134,45 @@ a.src{color:#1a56c4}
     </div>
 
     <div class="card">
-      <h2>Property Summary</h2>
-      <table id="rep_prop"></table>
+      <h2>Property Summary (editable)</h2>
+      <div class="row3">
+        <div><label>Style</label><input id="p_style"></div><div><label>Beds</label><input id="p_beds"></div><div><label>Baths</label><input id="p_baths"></div>
+      </div>
+      <div class="row3">
+        <div><label>Sq ft</label><input id="p_sqft"></div><div><label>Year built</label><input id="p_built"></div><div><label>Lot</label><input id="p_lot"></div>
+      </div>
+      <div class="row3">
+        <div><label>Foundation</label><input id="p_found"></div><div><label>Terms</label><input id="p_terms"></div><div><label>Owner</label><input id="p_owner"></div>
+      </div>
+      <label>Condition / notes</label><input id="p_cond">
     </div>
 
     <div class="card">
-      <h2>Rental Comps</h2>
-      <table id="rep_rent"></table>
+      <h2>Rental Comps (editable)</h2>
+      <div class="row3">
+        <div><label>Low $/mo</label><input id="r_low" type="number"></div><div><label>Middle $/mo</label><input id="r_mid" type="number"></div><div><label>High $/mo</label><input id="r_high" type="number"></div>
+      </div>
+      <label>Comps (source &mdash; figure)</label>
+      <div id="rentRows" class="cmpgrid"></div>
+      <button class="btn alt sm noprint" onclick="addRent()">+ Add rental comp</button>
     </div>
 
     <div class="card">
-      <h2>Sale Comps</h2>
-      <table id="rep_sale"></table>
+      <h2>Sale Comps (editable)</h2>
+      <label>Comps (address / size / price / status)</label>
+      <div id="saleRows" class="cmpgrid"></div>
+      <button class="btn alt sm noprint" onclick="addSale()">+ Add sale comp</button>
+      <div class="row" style="margin-top:8px"><div><label>Est. ARV</label><input id="s_arv"></div><div></div></div>
     </div>
 
     <div class="card">
-      <h2>Risk &amp; Links</h2>
+      <h2>Links &amp; Records (auto from address + state)</h2>
+      <div id="rep_links" class="links"></div>
+      <div class="note">State portals are starting points; the exact county page for this parcel fills in when Claude researches the address.</div>
+    </div>
+
+    <div class="card">
+      <h2>Risk</h2>
       <table id="rep_risk"></table>
     </div>
 
@@ -175,76 +186,87 @@ a.src{color:#1a56c4}
 </div>
 
 <script>
-/* ===== research payload (Claude fills this) ===== */
-var RESEARCH = {
-  status:"SOLD 06/11/2026 for $31,500 — off market",
-  addr:"2217 Francis Ave", city:"Flint", state:"MI", zip:"48505", dealtype:"Slow flip — cash",
-  pin:"40-01-411-016", mls:"50195153 (Closed)", listPrice:"$31,500 (sold 6/11/26)",
-  style:"Single family, 2-story Traditional, vinyl siding", beds:"3", baths:"1.5", sqft:"1,257",
-  built:"1915", lot:"4,356 sqft (0.10 ac)", found:"Full basement",
-  terms:"Cash / Conventional / Land Contract", owner:"Private (MiRealSource listing)",
-  subdivision:"Stone-Macdonald Addition",
-  purchase:31500, trueCashValue:41600, mills:47.6, miSEV:1,
-  insDwell:50000, insRate:8, insLiab:450,
-  rentLow:1050, rentMid:1215, rentHigh:1305,
-  rentComps:[
-    ["HUD FMR 2025 (Flint MSA) — 3BR 40th pct / Sec 8","$1,215/mo","https://www.rentdata.org/flint-mi-msa/2025"],
-    ["HUD 2025 — 3BR 50th pct (median)","$1,305/mo","https://www.rentdata.org/flint-mi-msa/2025"],
-    ["Trulia Rent Estimate (address AVM)","$1,052/mo","https://www.trulia.com/home/2217-francis-ave-flint-mi-48505-73932045"]
-  ],
-  saleComps:[
-    ["2217 Francis Ave (subject)","1,257 sf","$31,500","Sold 6/11/26"],
-    ["506 W Alma Ave","1,230 sf","$50,000","Sold 3/19/26"],
-    ["617 W Holbrook Ave","1,000 sf","$48,000","Sold 11/10/25"],
-    ["1395 W Yale Ave","1,002 sf","$8,800","distressed"]
-  ],
-  arv:"$45,000–$52,000",
-  flood:"No mapped SFHA — Zone X (minimal)",
-  crime:"48505 index 162 vs 100 US avg; Flint city grade D+",
-  landbank:"NOT land-bank owned (private MLS sale)",
-  listingUrl:"https://www.trulia.com/home/2217-francis-ave-flint-mi-48505-73932045",
-  zillowUrl:"https://www.zillow.com/homes/2217-Francis-Ave-Flint-MI-48505_rb/",
-  photosUrl:"https://www.trulia.com/home/2217-francis-ave-flint-mi-48505-73932045#photos",
-  bsaUrl:"https://bsaonline.com/?uid=1158",
-  portalUrl:"https://flintpropertyportal.com/",
-  femaUrl:"https://msc.fema.gov/portal/search?AddressQuery=2217%20Francis%20Ave%20Flint%20MI%2048505",
-  mapsUrl:"https://www.google.com/maps/search/?api=1&query=43.036785,-83.702530",
-  streetUrl:"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=43.036785,-83.702530"
+/* ===== per-state defaults + record/land-bank/code links ===== */
+var STATES={
+ MI:{mills:47.6,rate:8,records:"https://bsaonline.com",recordsName:"BS&A Online (MI parcel/tax)",landbank:"https://www.michigan.gov/landbank",code:"https://www.michigan.gov/"},
+ MO:{mills:75,rate:8,records:"https://www.stlouiscountymo.gov/st-louis-county-departments/revenue/",recordsName:"County Assessor / Collector (MO)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
+ IL:{mills:75,rate:8,records:"https://www.cookcountyassessor.com/",recordsName:"County Assessor (IL / Cook)",landbank:"https://www.cookcountylandbank.org/",code:"https://www.chicago.gov/city/en/depts/bldgs.html"},
+ IA:{mills:35,rate:8,records:"https://www.iowaassessors.com/",recordsName:"Iowa Assessors (statewide)",landbank:"https://www.investdsm.org/",code:"https://www.dsm.city/departments/permit_and_development_center/"},
+ IN:{mills:20,rate:8,records:"https://beacon.schneidercorp.com/",recordsName:"Beacon / Schneider GIS (IN statewide)",landbank:"https://renewindianapolis.org/",code:"https://www.indy.gov/agency/department-of-business-and-neighborhood-services"},
+ OH:{mills:60,rate:8,records:"https://www.cuyahogacounty.gov/fiscal-officer",recordsName:"County Auditor (OH)",landbank:"https://ohiolandbanks.org/",code:"https://www.neighborhoodprogress.org/"},
+ AL:{mills:40,rate:8,records:"https://www.deltacomputersystems.com/AL/index.html",recordsName:"Delta Computer Systems (AL counties)",landbank:"https://landbank.alabama.gov/",code:"https://www.birminghamal.gov/"},
+ MS:{mills:100,rate:8,records:"https://www.deltacomputersystems.com/msindex.html",recordsName:"Delta Computer Systems (MS statewide)",landbank:"",code:"https://www.jacksonms.gov/"},
+ GA:{mills:35,rate:8,records:"https://qpublic.schneidercorp.com/",recordsName:"qPublic / Schneider (GA statewide)",landbank:"https://www.atlantalandbank.org/",code:"https://www.atlantaga.gov/government/departments/city-planning"},
+ WI:{mills:25,rate:8,records:"https://county.milwaukee.gov/EN/Treasurer",recordsName:"County Treasurer (WI)",landbank:"https://city.milwaukee.gov/DCD",code:"https://city.milwaukee.gov/dns"},
+ TN:{mills:40,rate:8,records:"https://assessment.cot.tn.gov/RE_Assessment/",recordsName:"TN Comptroller property search (statewide)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
 };
 
-/* ===== helpers ===== */
+var RESEARCH = {};  // Claude fills this when you give an address
+
 function $(id){return document.getElementById(id)}
+function val(id){var e=$(id);return e?e.value:''}
 function money(n){return '$'+Math.round(n).toLocaleString()}
 function money2(n){return '$'+(Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n,d){return (Math.round(n*Math.pow(10,d||1))/Math.pow(10,d||1))+'%'}
 function esc(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function enc(s){return encodeURIComponent(s||'')}
 function amort(P,ratePct,n){var r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:0;return P*r/(1-Math.pow(1+r,-n));}
 
-/* ===== millage & insurance (exact replica) ===== */
 function millage(){
-  var val=(+$('m_val').value|| +$('i_price').value||0), mills=+$('m_mills').value||0, sev=$('m_sev').value==='1';
-  var taxable = sev ? val*0.5 : val;
-  var annual = taxable*mills/1000, mo=annual/12;
-  if(val>0 && mills>0){ $('m_annual').value=money(annual); $('i_tax').value=mo.toFixed(2); } else { $('m_annual').value='—'; $('i_tax').value=''; }
+  var v=(+val('m_val')|| +val('i_price')||0), mills=+val('m_mills')||0, sev=val('m_sev')==='1';
+  var taxable=sev?v*0.5:v, annual=taxable*mills/1000, mo=annual/12;
+  if(v>0&&mills>0){$('m_annual').value=money(annual);$('i_tax').value=mo.toFixed(2);}else{$('m_annual').value='—';$('i_tax').value='';}
   calc();
 }
 function insurance(){
-  var d=+$('in_dwell').value||0, r=+$('in_rate').value||0, li=+$('in_liab').value||0;
-  var annual=Math.max(0, d/1000*r+li), mo=annual/12;
-  $('in_annual').value=money(annual); $('i_ins').value=mo.toFixed(2);
-  $('i_upins').value=Math.round(annual);
+  var d=+val('in_dwell')||0,r=+val('in_rate')||0,li=+val('in_liab')||0;
+  var annual=Math.max(0,d/1000*r+li),mo=annual/12;
+  $('in_annual').value=money(annual);$('i_ins').value=mo.toFixed(2);$('i_upins').value=Math.round(annual);
   calc();
 }
+function applyState(){
+  var st=val('state'); $('i_ustate').value=st; var s=STATES[st];
+  if(s){ if(!val('m_mills'))$('m_mills').value=s.mills; $('in_rate').value=s.rate; $('m_sev').value=(st==='MI')?'1':'0'; }
+  millage(); insurance(); buildLinks();
+}
 
-/* ===== Slow Flip deal (exact replica, two-phase) ===== */
+/* ===== links ===== */
+function fullAddr(){return [val('addr'),val('city'),val('state'),val('zip')].filter(Boolean).join(', ');}
+function buildLinks(){
+  var a=fullAddr(), st=val('state'), city=val('city'), zip=val('zip'), s=STATES[st]||{};
+  if(!a){$('rep_links').innerHTML='<span class="mini">Enter an address + state to generate links.</span>';return;}
+  var L=[];
+  L.push(['Zillow','https://www.zillow.com/homes/'+enc(a)+'_rb/']);
+  L.push(['Listing photos','https://www.realtor.com/realestateandhomes-search/'+enc(a).replace(/%20/g,'-')]);
+  L.push(['Google Maps view','https://www.google.com/maps/search/?api=1&query='+enc(a)]);
+  L.push(['Street View','https://www.google.com/maps?q='+enc(a)+'&layer=c']);
+  L.push(['Flood zone (FEMA)','https://msc.fema.gov/portal/search?AddressQuery='+enc(a)]);
+  L.push(['Crime statistics', city&&st ? 'https://www.areavibes.com/'+enc(city.toLowerCase())+'-'+enc(st.toLowerCase())+'/crime/' : 'https://crimegrade.org/']);
+  if(s.records)L.push(['County records &mdash; PID / legal / taxes ('+ (s.recordsName||st) +')',s.records]);
+  if(s.code)L.push(['Code &amp; blight cases ('+st+')',s.code]);
+  if(s.landbank)L.push(['Land bank ('+st+')',s.landbank]);
+  $('rep_links').innerHTML=L.map(function(x){return '<a class="src" href="'+x[1]+'" target="_blank">'+x[0]+' &#8599;</a>';}).join('');
+}
+
+/* ===== editable comps ===== */
+function addRent(src,fig){
+  var d=document.createElement('div'); d.className='row'; d.style.marginTop='4px';
+  d.innerHTML='<input placeholder="Source (e.g. HUD FMR 3BR)" value="'+esc(src||'')+'"><input placeholder="$/mo or note" value="'+esc(fig||'')+'">';
+  $('rentRows').appendChild(d);
+}
+function addSale(addr,size,price,status){
+  var d=document.createElement('div'); d.className='row3'; d.style.marginTop='4px'; d.style.gridTemplateColumns='2fr 1fr 1fr 1fr';
+  d.innerHTML='<input placeholder="Address" value="'+esc(addr||'')+'"><input placeholder="Size" value="'+esc(size||'')+'"><input placeholder="Price" value="'+esc(price||'')+'"><input placeholder="Status" value="'+esc(status||'')+'">';
+  $('saleRows').appendChild(d);
+}
+
+/* ===== deal (exact replica) ===== */
 function deal(){
-  var d={purchasePrice:+$('i_price').value||0,buyClosingPct:+$('i_closepct').value||0,
-    initialRepairs:+$('i_repairs').value||0,bogCosts:+$('i_bog').value||0,upfrontInsurance:+$('i_upins').value||0,
-    fundingType:$('i_funding').value,pmlLoanAmount:+$('i_pmlamt').value||0,pmlRate:+$('i_pmlrate').value||0,
-    pmlTermMonths:+$('i_pmlterm').value||0,oppPct:+$('i_opp').value||0,
-    propTax:+$('i_tax').value||0,insurance:+$('i_ins').value||0,legal:+$('i_legal').value||0,
-    tbSale:+$('i_tbsale').value||0,tbDown:+$('i_tbdown').value||0,tbRate:+$('i_tbrate').value||0,
-    tbTerm:+$('i_tbterm').value||360,state:($('i_ustate').value||'').toUpperCase()};
+  var d={purchasePrice:+val('i_price')||0,buyClosingPct:+val('i_closepct')||0,initialRepairs:+val('i_repairs')||0,
+    bogCosts:+val('i_bog')||0,upfrontInsurance:+val('i_upins')||0,fundingType:val('i_funding'),
+    pmlLoanAmount:+val('i_pmlamt')||0,pmlRate:+val('i_pmlrate')||0,pmlTermMonths:+val('i_pmlterm')||0,oppPct:+val('i_opp')||0,
+    propTax:+val('i_tax')||0,insurance:+val('i_ins')||0,legal:+val('i_legal')||0,
+    tbSale:+val('i_tbsale')||0,tbDown:+val('i_tbdown')||0,tbRate:+val('i_tbrate')||0,tbTerm:+val('i_tbterm')||360,state:(val('i_ustate')||'').toUpperCase()};
   var buyClosing=d.purchasePrice*d.buyClosingPct/100;
   var down=d.fundingType==='PML'?Math.max(d.purchasePrice-d.pmlLoanAmount,0):d.purchasePrice;
   var cashInvested=down+buyClosing+d.initialRepairs+d.bogCosts+d.upfrontInsurance;
@@ -264,9 +286,9 @@ function deal(){
   var projROI=cashInvested>0?projProfit/cashInvested*100:0;
   var payoffYear=Math.ceil(d.pmlTermMonths/12)+1, tbYears=Math.round(d.tbTerm/12);
   var status;
-  if(d.fundingType==='PML'){ status=(profit1<0||profit2<0)?'NEGATIVE':((profit1>=0&&profit2>=500)?'STRONG':'TIGHT'); }
-  else{ status=profit1<0?'NEGATIVE':(profit1>=500?'STRONG':'TIGHT'); }
-  var caps={IL:null,MI:11,OH:25,ND:null,SD:null,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null};
+  if(d.fundingType==='PML'){status=(profit1<0||profit2<0)?'NEGATIVE':((profit1>=0&&profit2>=500)?'STRONG':'TIGHT');}
+  else{status=profit1<0?'NEGATIVE':(profit1>=500?'STRONG':'TIGHT');}
+  var caps={IL:null,MI:11,OH:25,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null,GA:null,TN:null};
   var cap=caps[d.state]!==undefined?caps[d.state]:null; var usuryOK=cap===null?true:d.tbRate<=cap;
   return {d:d,buyClosing:buyClosing,cashInvested:cashInvested,pmlPay:pmlPay,oppMo:oppMo,carry:carry,tbLoan:tbLoan,tbPay:tbPay,
     netCash:netCash,profit1:profit1,profit2:profit2,margin1:margin1,coc1:coc1,projProfit:projProfit,projROI:projROI,
@@ -304,10 +326,26 @@ function calc(){
   $('rep_deal').innerHTML=rows;
 }
 
-/* ===== fill report + inputs from RESEARCH ===== */
+/* ===== risk + checklist + research load ===== */
+function renderRisk(){
+  var R=RESEARCH;
+  $('rep_risk').innerHTML=
+    '<tr><td>Flood</td><td class="r">'+esc(R.flood||'— (see FEMA link)')+'</td></tr>'
+   +'<tr><td>Crime</td><td class="r">'+esc(R.crime||'— (see crime link)')+'</td></tr>'
+   +'<tr><td>Land bank</td><td class="r">'+esc(R.landbank||'— (see land bank link)')+'</td></tr>';
+}
+function renderTodo(){
+  var TODO=['Confirm PID & legal on county records','Confirm taxable value + PRE / homestead status',
+    'Search county code & blight cases','Interior inspection + rehab scope & budget','Roof & foundation assessment',
+    'Verify water service line status','Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote',
+    'Review prelim title commitment','Review settlement statement before wire'];
+  $('rep_todo').innerHTML='<div style="columns:2;column-gap:18px">'+TODO.map(function(t){
+    return '<label style="display:block;font-size:12px;color:#1b2430;margin:3px 0"><input type="checkbox" style="width:auto;margin-right:6px">'+t+'</label>';}).join('')+'</div>';
+}
+
 function loadResearch(){
-  var R=RESEARCH||{}; var has=function(k){return R[k]!==undefined && R[k]!==null && R[k]!=='';};
-  $('soldbadge').innerHTML = has('status') ? '<div class="status-sold">\u26A0 '+esc(R.status)+'</div>' : '';
+  var R=RESEARCH||{}; var has=function(k){return R[k]!==undefined&&R[k]!==null&&R[k]!=='';};
+  $('soldbadge').innerHTML=has('status')?'<div class="status-sold">⚠ '+esc(R.status)+'</div>':'';
   if(has('addr'))$('addr').value=R.addr; if(has('city'))$('city').value=R.city;
   if(has('state')){$('state').value=R.state;$('i_ustate').value=R.state;}
   if(has('zip'))$('zip').value=R.zip;
@@ -317,93 +355,29 @@ function loadResearch(){
   if(R.miSEV!==undefined)$('m_sev').value=R.miSEV?'1':'0';
   if(has('insDwell'))$('in_dwell').value=R.insDwell; if(has('insRate'))$('in_rate').value=R.insRate; if(has('insLiab'))$('in_liab').value=R.insLiab;
   if(has('purchase'))$('i_price').value=R.purchase;
-  var ph='<tr><td style="color:#66707d">Enter an address above, then ask Claude to research it \u2014 results fill here.</td></tr>';
-  if(has('style')){
-    $('rep_prop').innerHTML=
-      '<tr><td>Style</td><td class="r">'+esc(R.style)+'</td></tr>'
-     +'<tr><td>Beds / baths</td><td class="r">'+esc(R.beds)+' / '+esc(R.baths)+'</td></tr>'
-     +'<tr><td>Sq ft / built</td><td class="r">'+esc(R.sqft)+' \u00B7 '+esc(R.built)+'</td></tr>'
-     +'<tr><td>Lot / foundation</td><td class="r">'+esc(R.lot)+' \u00B7 '+esc(R.found)+'</td></tr>'
-     +'<tr><td>Subdivision</td><td class="r">'+esc(R.subdivision)+'</td></tr>'
-     +'<tr><td>Terms accepted</td><td class="r"><b>'+esc(R.terms)+'</b></td></tr>'
-     +'<tr><td>Source</td><td class="r"><a class="src" href="'+R.listingUrl+'" target="_blank">listing</a> \u00B7 <a class="src" href="'+R.bsaUrl+'" target="_blank">BS&amp;A</a></td></tr>';
-  } else $('rep_prop').innerHTML=ph;
-  if(R.rentComps&&R.rentComps.length){
-    var rc='<tr><th>Source</th><th class="r">Figure</th><th class="r">Link</th></tr>';
-    R.rentComps.forEach(function(c){rc+='<tr><td>'+esc(c[0])+'</td><td class="r">'+c[1]+'</td><td class="r"><a class="src" href="'+c[2]+'" target="_blank">open</a></td></tr>'});
-    rc+='<tr><td colspan="3" style="padding-top:6px"><b>Estimate:</b> Low '+money(R.rentLow)+' \u00B7 Mid '+money(R.rentMid)+' \u00B7 High '+money(R.rentHigh)+' /mo</td></tr>';
-    $('rep_rent').innerHTML=rc;
-  } else $('rep_rent').innerHTML=ph;
-  if(R.saleComps&&R.saleComps.length){
-    var sc='<tr><th>Address</th><th>Size</th><th class="r">Price</th><th class="r">Status</th></tr>';
-    R.saleComps.forEach(function(c){sc+='<tr><td>'+esc(c[0])+'</td><td>'+esc(c[1])+'</td><td class="r">'+c[2]+'</td><td class="r">'+esc(c[3])+'</td></tr>'});
-    sc+='<tr><td colspan="4" style="padding-top:6px"><b>Est. ARV:</b> '+esc(R.arv||'')+'</td></tr>';
-    $('rep_sale').innerHTML=sc;
-  } else $('rep_sale').innerHTML=ph;
-  if(has('flood')){
-    $('rep_risk').innerHTML=
-      '<tr><td>Zillow</td><td class="r"><a class="src" href="'+(R.zillowUrl||'#')+'" target="_blank">open on Zillow</a></td></tr>'
-     +'<tr><td>Listing photos</td><td class="r"><a class="src" href="'+(R.photosUrl||R.listingUrl)+'" target="_blank">view photos</a> \u00B7 <a class="src" href="'+R.listingUrl+'" target="_blank">listing</a></td></tr>'
-     +'<tr><td>Google Maps view</td><td class="r"><a class="src" href="'+R.mapsUrl+'" target="_blank">map</a> \u00B7 <a class="src" href="'+R.streetUrl+'" target="_blank">street view</a></td></tr>'
-     +'<tr><td>Flood</td><td class="r">'+esc(R.flood)+' \u00B7 <a class="src" href="'+R.femaUrl+'" target="_blank">FEMA</a></td></tr>'
-     +'<tr><td>Crime</td><td class="r">'+esc(R.crime)+'</td></tr>'
-     +'<tr><td>Land bank</td><td class="r">'+esc(R.landbank)+'</td></tr>'
-     +'<tr><td>Code / blight</td><td class="r"><a class="src" href="'+R.portalUrl+'" target="_blank">Property portal</a></td></tr>';
-  } else $('rep_risk').innerHTML=ph;
-  var TODO=['Confirm full legal description (county assessor)','Confirm taxable value + PRE / homestead status',
-    'Pull open code / blight cases','Order preliminary title / lien search','Rentometer address-level rent pull',
-    'Interior inspection + rehab scope & budget','Roof & foundation assessment','Verify water service line status',
-    'Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote','Review prelim title commitment',
-    'Review settlement statement before wire'];
-  $('rep_todo').innerHTML='<div style="columns:2;column-gap:18px">'+TODO.map(function(t){
-    return '<label style="display:block;font-size:12px;color:#1b2430;margin:3px 0"><input type="checkbox" style="width:auto;margin-right:6px">'+t+'</label>';}).join('')+'</div>';
-  millage(); insurance(); calc();
+  if(has('style'))$('p_style').value=R.style; if(has('beds'))$('p_beds').value=R.beds; if(has('baths'))$('p_baths').value=R.baths;
+  if(has('sqft'))$('p_sqft').value=R.sqft; if(has('built'))$('p_built').value=R.built; if(has('lot'))$('p_lot').value=R.lot;
+  if(has('found'))$('p_found').value=R.found; if(has('terms'))$('p_terms').value=R.terms; if(has('owner'))$('p_owner').value=R.owner;
+  if(has('condition'))$('p_cond').value=R.condition;
+  if(has('rentLow'))$('r_low').value=R.rentLow; if(has('rentMid'))$('r_mid').value=R.rentMid; if(has('rentHigh'))$('r_high').value=R.rentHigh;
+  $('rentRows').innerHTML=''; (R.rentComps||[]).forEach(function(c){addRent(c[0],c[1]);}); if(!(R.rentComps&&R.rentComps.length)){addRent();addRent();}
+  $('saleRows').innerHTML=''; (R.saleComps||[]).forEach(function(c){addSale(c[0],c[1],c[2],c[3]);}); if(!(R.saleComps&&R.saleComps.length)){addSale();addSale();}
+  if(has('arv'))$('s_arv').value=R.arv;
+  if(has('state'))applyState();
+  renderRisk(); renderTodo(); buildLinks(); millage(); insurance(); calc();
 }
-function pad(n){return (n<10?'0':'')+n;}
-function icsStamp(){var d=new Date();return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';}
-function downloadICS(){
-  var addr=($('addr').value||'Property').trim();
-  var items=[
-    ['PA Execution',$('d_pa').value],
-    ['Closing',$('d_close').value],
-    ['Inspection Deadline',$('d_insp').value],
-    ['Earnest Money Due',$('d_em').value],
-    [($('d_x_lbl').value||'Key Date'),$('d_x').value]
-  ].filter(function(x){return x[1];});
-  if(!items.length){alert('Enter at least one date first.');return;}
-  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RenewEQ//Analyzer//EN','CALSCALE:GREGORIAN'];
-  items.forEach(function(it,i){
-    var ymd=it[1].replace(/-/g,'');
-    var d=new Date(it[1]+'T00:00:00'); d.setDate(d.getDate()+1); var end=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
-    L.push('BEGIN:VEVENT');
-    L.push('UID:renew-'+ymd+'-'+i+'@reneweq');
-    L.push('DTSTAMP:'+icsStamp());
-    L.push('DTSTART;VALUE=DATE:'+ymd);
-    L.push('DTEND;VALUE=DATE:'+end);
-    L.push('SUMMARY:'+it[0]+' \u2014 '+addr);
-    L.push('DESCRIPTION:RenewEQ deal milestone for '+addr);
-    L.push('BEGIN:VALARM');L.push('TRIGGER:-P1D');L.push('ACTION:DISPLAY');L.push('DESCRIPTION:'+it[0]);L.push('END:VALARM');
-    L.push('END:VEVENT');
-  });
-  L.push('END:VCALENDAR');
-  var blob=new Blob([L.join('\r\n')],{type:'text/calendar'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=(addr.replace(/[^a-z0-9]+/gi,'_')||'renew')+'_key_dates.ics'; a.click();
-}
-function runResults(){
-  millage(); insurance(); calc();
-  var b=$('rep_banner'); b.style.transition='none'; b.style.outline='3px solid #1f8f4e';
-  setTimeout(function(){b.style.transition='outline .6s';b.style.outline='none';},60);
-  $('rep_banner').scrollIntoView({behavior:'smooth',block:'center'});
-}
+
+function runResults(){millage();insurance();calc();var b=$('rep_banner');b.style.outline='3px solid #1f8f4e';setTimeout(function(){b.style.transition='outline .6s';b.style.outline='none';},60);b.scrollIntoView({behavior:'smooth',block:'center'});}
 function clearAll(){
-  ['addr','city','state','zip','pin','mls','listp','m_val','m_mills','i_price','i_pmlamt','i_tbsale','i_tbdown','i_ustate','d_pa','d_close','d_insp','d_em','d_x_lbl','d_x'].forEach(function(id){$(id).value='';});
+  ['addr','city','state','zip','pin','mls','listp','m_val','m_mills','i_price','i_pmlamt','i_tbsale','i_tbdown','i_ustate',
+   'p_style','p_beds','p_baths','p_sqft','p_built','p_lot','p_found','p_terms','p_owner','p_cond','r_low','r_mid','r_high','s_arv'].forEach(function(id){$(id).value='';});
   $('i_closepct').value=3;$('i_repairs').value=5000;$('i_bog').value=500;$('i_legal').value=25;$('i_opp').value=0;
   $('in_rate').value=8;$('in_dwell').value=50000;$('in_liab').value='450';$('m_sev').value='1';
   $('i_pmlrate').value=10;$('i_pmlterm').value=60;$('i_tbrate').value=10.9;$('i_tbterm').value=360;
   $('i_funding').value='Self-Funded';$('dealtype').selectedIndex=0;$('i_upins').value='';
-  $('soldbadge').innerHTML='';
-  RESEARCH={}; loadResearch();
+  $('soldbadge').innerHTML=''; RESEARCH={};
+  $('rentRows').innerHTML='';addRent();addRent(); $('saleRows').innerHTML='';addSale();addSale();
+  renderRisk();renderTodo();buildLinks();millage();insurance();calc();
 }
 loadResearch();
 </script>
