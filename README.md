@@ -1,10 +1,27 @@
 # Property Due-Diligence App
 
-One-click property research + Slow Flip deal analyzer + PDF export.
-Front-end is served by a small Node/Express backend. The **RUN** button
-calls `/api/run`, which pulls data and fills the compiled report.
+RenewEQ Slow Flip deal analyzer + due diligence checklist + PDF export.
+Anyone can open the page. The live property research runs in each user's
+own Claude account, so there is no AI key or cost on this server.
 
-## Runs today with NO API key
+## How a user runs a deal
+1. Open the page and fill in the inputs. The same fixed set of inputs shows
+   every time, all starting blank. Nothing is required up front: every result
+   in the Deal Analysis says exactly which inputs it still needs, and those
+   boxes are highlighted. Blank Make-ready, BOG, Servicing and Buyer down
+   count as $0 (noted under the results).
+2. Click **Copy request for Claude** and paste it into a chat in their own
+   Claude account (web search on). The request carries their inputs and the
+   exact JSON format to reply in.
+3. Paste Claude's whole reply into the box and click **Fill the analyzer**,
+   or click the link Claude gives back (`#r=` + base64url JSON).
+
+Work in progress is kept in that browser (localStorage) until
+**Start over (clear)**. Updating `index.html` here updates the instructions
+for every user at once; nothing to install on their side.
+
+## Server extras (optional)
+
 Out of the box it uses free sources:
 - **US Census geocoder** — validates the address, returns county + lat/lng
 - **FEMA National Flood Hazard Layer** — flood zone / SFHA status

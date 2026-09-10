@@ -15,11 +15,13 @@ h1{font-size:20px;margin:0 0 2px;color:#1f4e9c}
 .card{background:#fff;border:1px solid #e2e7ef;border-radius:10px;padding:14px;margin-bottom:16px}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#1f4e9c;margin:0 0 10px}
 label{display:block;font-size:11px;color:#66707d;margin:6px 0 2px}
-input,select{width:100%;padding:7px 8px;border:1px solid #cfd6e2;border-radius:6px;font-size:13px;background:#fff}
+input,select,textarea{width:100%;padding:7px 8px;border:1px solid #cfd6e2;border-radius:6px;font-size:13px;background:#fff;font-family:inherit}
 input[readonly]{background:#eef2f8;color:#1b2430;font-weight:600}
+input[readonly]::placeholder{color:#a0661c;font-weight:500;font-size:11px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.btn{background:#1f4e9c;color:#fff;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+@media(max-width:520px){.row3{grid-template-columns:1fr 1fr}}
+.btn{background:#1f4e9c;color:#fff;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;margin:2px 4px 2px 0}
 .btn.alt{background:#eef2f8;color:#1f4e9c;border:1px solid #cfd6e2}
 .btn.sm{padding:5px 9px;font-size:12px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -28,38 +30,59 @@ input[readonly]{background:#eef2f8;color:#1b2430;font-weight:600}
 .kpi .v{font-size:15px;font-weight:700}
 .kpi .v.g{color:#1f8f4e}.kpi .v.b{color:#c0392b}.kpi .v.w{color:#8a6d00}
 .kpi .k{font-size:10px;color:#66707d;margin-top:2px}
+.kpi .nd{font-size:10px;color:#a0661c;font-weight:600;line-height:1.3}
 .banner{padding:9px;border-radius:7px;font-weight:700;text-align:center;margin:10px 0}
-.banner.ok{background:#e5f5ec;color:#1f8f4e}.banner.mid{background:#fbf3dd;color:#8a6d00}.banner.no{background:#fbe5e2;color:#c0392b}
+.banner.ok{background:#e5f5ec;color:#1f8f4e}.banner.mid{background:#fbf3dd;color:#8a6d00}.banner.no{background:#fbe5e2;color:#c0392b}.banner.wait{background:#eef2f8;color:#4a5566}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{text-align:left;padding:4px 5px;border-bottom:1px solid #eef1f6}
+th,td{text-align:left;padding:4px 5px;border-bottom:1px solid #eef1f6;vertical-align:top}
 td.r,th.r{text-align:right}
+.needs{color:#a0661c;font-size:11px;font-weight:600}
 a.src{color:#1a56c4}
 .links a{display:inline-block;margin:2px 10px 2px 0;color:#1a56c4;font-size:12px}
 .note{font-size:11px;color:#66707d;margin-top:6px}
 .status-sold{background:#c0392b;color:#fff;padding:6px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-block;margin-bottom:10px}
 .mini{font-size:11px;color:#66707d}
 .cmpgrid input{font-size:12px;padding:5px 6px}
-@media print{.noprint{display:none}body{background:#fff}.card{break-inside:avoid}}
-.researchbar{display:none;margin:10px 0;background:#eef2f8;border:1px solid #cfd6e2;border-radius:8px;padding:10px 12px}
-.researchbar .txt{font-size:12px;color:#1f4e9c;font-weight:700;margin-bottom:6px}
-.track{height:6px;background:#dbe3f0;border-radius:4px;overflow:hidden}
-.track>i{display:block;height:100%;width:40%;background:#1f4e9c;border-radius:4px;animation:slide 1.2s ease-in-out infinite}
-@keyframes slide{0%{margin-left:-40%}100%{margin-left:100%}}
+.need{border-color:#e0a23a !important;background:#fffaf0 !important;box-shadow:0 0 0 2px rgba(224,162,58,.18)}
+.needbox{background:#fffaf0;border:1px solid #f0d9a8;border-radius:8px;padding:9px 11px;font-size:12px;color:#6b4a0e;margin:8px 0}
+.needbox b{color:#5a3d06}
+.needbox.done{background:#e5f5ec;border-color:#bfe3cd;color:#1f6b3e}
+.zerobox{font-size:11px;color:#66707d;margin-top:4px}
+.steps ol{margin:0 0 10px 18px;padding:0;font-size:13px}
+.steps li{margin:3px 0}
+.meter{display:flex;align-items:center;gap:10px;font-size:12px;color:#4a5566;margin:6px 0 10px}
+.meter .bar{flex:1;max-width:260px;height:7px;background:#dbe3f0;border-radius:4px;overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;background:#1f8f4e;border-radius:4px;transition:width .25s}
+.msg{font-size:12px;font-weight:600;margin-left:6px}
+.msg.ok{color:#1f8f4e}.msg.err{color:#c0392b}
+textarea{resize:vertical}
+@media print{.noprint{display:none !important}body{background:#fff}.card{break-inside:avoid}.need{box-shadow:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>RenewEQ &mdash; Property Acquisition Analyzer</h1>
-<div class="sub">Deal analyzer &#183; ACV insurance &#183; state millage &#183; auto records links &#183; enter an address, then ask Claude to fill the live research</div>
+<div class="sub">Deal analyzer &#183; ACV insurance &#183; state millage &#183; auto records links &#183; research filled in by your own Claude account</div>
 
-<div class="noprint" style="margin-bottom:14px">
+<div class="card steps noprint">
+  <h2>How to use</h2>
+  <ol>
+    <li><b>Fill in the inputs below.</b> Leave blank anything you don't know yet. The Deal Analysis tells you what each number still needs.</li>
+    <li><b>Click Copy request for Claude</b> and paste it into a chat in your own Claude account. Claude researches the property.</li>
+    <li><b>Copy Claude's whole reply</b>, paste it in the box below, and click Fill the analyzer. (Or click the link Claude gives you.)</li>
+  </ol>
+  <div class="meter"><span>Inputs filled: <b id="meterTxt">0 of 0</b></span><div class="bar"><i id="meterBar"></i></div></div>
+  <button class="btn" style="background:#6b3fa0" onclick="copyRequest()">Copy request for Claude</button>
   <button class="btn" onclick="runResults()" style="background:#1f8f4e">RUN RESULTS</button>
   <button class="btn" onclick="window.print()">Save / Print PDF</button>
   <button class="btn alt" onclick="clearAll()">Start over (clear)</button>
-  <button class="btn" style="background:#6b3fa0" onclick="askClaudeResearch()">Ask Claude to research</button>
-  <span class="mini">Type an address to Claude in chat to auto-fill the research; or enter values manually.</span>
-  <div id="researchBar" class="researchbar noprint"><div class="txt">&#128269; Claude is researching this address &mdash; property summary, comps, tax &amp; records<span id="rbdots"></span></div><div class="track"><i></i></div><div class="mini" style="margin-top:6px">This runs in your Claude chat. The panel fills in automatically when Claude finishes.</div></div>
-  <div id="claudePrompt" style="display:none;margin-top:8px"><label class="mini">Copied — paste this to Claude in chat:</label><textarea id="cp_text" readonly style="width:100%;height:64px;font-size:12px;padding:6px;border:1px solid #cfd6e2;border-radius:6px"></textarea></div>
+  <div id="claudePrompt" hidden style="margin-top:8px">
+    <label id="cp_label">Copied. Paste this into your Claude chat:</label>
+    <textarea id="cp_text" readonly style="height:90px;font-size:12px"></textarea>
+  </div>
+  <label style="margin-top:12px">Paste Claude's reply here</label>
+  <textarea id="pasteBox" style="height:70px;font-size:12px" placeholder="Paste Claude's entire reply (or the link it gave you), then click Fill the analyzer"></textarea>
+  <div style="margin-top:6px"><button class="btn" onclick="fillFromPaste()">Fill the analyzer</button><span id="pasteMsg" class="msg"></span></div>
 </div>
 
 <div id="soldbadge"></div>
@@ -71,12 +94,9 @@ a.src{color:#1a56c4}
       <h2>Property</h2>
       <div class="row"><div><label>Address</label><input id="addr" oninput="buildLinks()"></div><div><label>City</label><input id="city" oninput="buildLinks()"></div></div>
       <div class="row3">
-        <div><label>State</label>
-          <select id="state" onchange="applyState();buildLinks()">
-            <option value="">—</option><option>MI</option><option>MO</option><option>IL</option><option>IA</option><option>IN</option><option>OH</option><option>AL</option><option>MS</option><option>GA</option><option>WI</option><option>TN</option>
-          </select></div>
+        <div><label>State</label><select id="state" onchange="applyState(true);buildLinks()"></select></div>
         <div><label>ZIP</label><input id="zip" oninput="buildLinks()"></div>
-        <div><label>Deal type</label><select id="dealtype"><option>Slow flip — cash</option><option>Slow flip — financed</option><option>Wholesale</option></select></div>
+        <div><label>Deal type</label><select id="dealtype"><option value="">Select</option><option>Slow flip — cash</option><option>Slow flip — financed</option><option>Wholesale</option></select></div>
       </div>
       <div class="row3"><div><label>PIN / Parcel</label><input id="pin"></div><div><label>MLS #</label><input id="mls"></div><div><label>List / last price</label><input id="listp"></div></div>
     </div>
@@ -86,17 +106,18 @@ a.src{color:#1a56c4}
       <div class="row3">
         <div><label>True cash value ($)</label><input id="m_val" type="number" oninput="millage()"></div>
         <div><label>Millage (mills)</label><input id="m_mills" type="number" step="0.1" oninput="millage()"></div>
-        <div><label>MI SEV (taxable=&frac12;)</label><select id="m_sev" onchange="millage()"><option value="1">Yes (MI)</option><option value="0">No</option></select></div>
+        <div><label>MI SEV (taxable=&frac12;)</label><select id="m_sev" onchange="millage()"><option value="">Select</option><option value="1">Yes (MI)</option><option value="0">No</option></select></div>
       </div>
       <div class="row"><div><label>Annual tax</label><input id="m_annual" readonly></div><div><label>Monthly tax</label><input id="i_tax" readonly></div></div>
+      <div class="note" id="taxHint"></div>
     </div>
 
     <div class="card">
       <h2>Insurance &mdash; ACV only (rate auto-set by state; editable)</h2>
       <div class="row3">
-        <div><label>Dwelling (ACV $)</label><input id="in_dwell" type="number" value="50000" oninput="insurance()"></div>
-        <div><label>Rate / $1,000</label><input id="in_rate" type="number" step="0.5" value="8" oninput="insurance()"></div>
-        <div><label>Liability</label><select id="in_liab" onchange="insurance()"><option value="450">$1,000,000</option><option value="250">$300,000</option></select></div>
+        <div><label>Dwelling (ACV $)</label><input id="in_dwell" type="number" oninput="insurance()"></div>
+        <div><label>Rate / $1,000</label><input id="in_rate" type="number" step="0.5" oninput="insurance()"></div>
+        <div><label>Liability</label><select id="in_liab" onchange="insurance()"><option value="">Select</option><option value="450">$1,000,000</option><option value="250">$300,000</option></select></div>
       </div>
       <div class="row"><div><label>Annual premium</label><input id="in_annual" readonly></div><div><label>Monthly</label><input id="i_ins" readonly></div></div>
     </div>
@@ -105,30 +126,30 @@ a.src{color:#1a56c4}
       <h2>Deal Inputs (Slow Flip)</h2>
       <div class="row3">
         <div><label>Purchase price</label><input id="i_price" type="number" oninput="millage();calc()"></div>
-        <div><label>Buy closing %</label><input id="i_closepct" type="number" step="0.1" value="3" oninput="calc()"></div>
-        <div><label>Make-ready $</label><input id="i_repairs" type="number" value="5000" oninput="calc()"></div>
+        <div><label>Buy closing %</label><input id="i_closepct" type="number" step="0.1" oninput="calc()"></div>
+        <div><label>Make-ready $</label><input id="i_repairs" type="number" oninput="calc()"></div>
       </div>
       <div class="row3">
-        <div><label>BOG costs $</label><input id="i_bog" type="number" value="500" oninput="calc()"></div>
-        <div><label>Upfront insurance $</label><input id="i_upins" type="number" oninput="calc()"></div>
-        <div><label>Servicing /mo</label><input id="i_legal" type="number" value="25" oninput="calc()"></div>
+        <div><label>BOG costs $</label><input id="i_bog" type="number" oninput="calc()"></div>
+        <div><label>Upfront insurance $</label><input id="i_upins" type="number" oninput="upinsTyped();calc()"></div>
+        <div><label>Servicing /mo</label><input id="i_legal" type="number" oninput="calc()"></div>
       </div>
       <div class="row3">
-        <div><label>Funding</label><select id="i_funding" onchange="calc()"><option value="Self-Funded">Cash (self-funded)</option><option value="PML">Financed (private loan)</option></select></div>
-        <div><label>Opp cost % (cash)</label><input id="i_opp" type="number" step="0.5" value="0" oninput="calc()"></div>
+        <div><label>Funding</label><select id="i_funding" onchange="calc()"><option value="">Select</option><option value="Self-Funded">Cash (self-funded)</option><option value="PML">Financed (private loan)</option></select></div>
+        <div><label>Opp cost % (cash)</label><input id="i_opp" type="number" step="0.5" oninput="calc()"></div>
         <div><label>State (usury)</label><input id="i_ustate" oninput="calc()"></div>
       </div>
       <div class="row3">
         <div><label>Loan amount (PML)</label><input id="i_pmlamt" type="number" oninput="calc()"></div>
-        <div><label>PML rate %</label><input id="i_pmlrate" type="number" step="0.1" value="10" oninput="calc()"></div>
-        <div><label>PML term (mo)</label><input id="i_pmlterm" type="number" value="60" oninput="calc()"></div>
+        <div><label>PML rate %</label><input id="i_pmlrate" type="number" step="0.1" oninput="calc()"></div>
+        <div><label>PML term (mo)</label><input id="i_pmlterm" type="number" oninput="calc()"></div>
       </div>
       <div class="row3">
         <div><label>Resale to end buyer</label><input id="i_tbsale" type="number" oninput="calc()"></div>
         <div><label>Buyer down</label><input id="i_tbdown" type="number" oninput="calc()"></div>
-        <div><label>Buyer rate %</label><input id="i_tbrate" type="number" step="0.1" value="10.9" oninput="calc()"></div>
+        <div><label>Buyer rate %</label><input id="i_tbrate" type="number" step="0.1" oninput="calc()"></div>
       </div>
-      <div class="row"><div><label>Buyer term (mo)</label><input id="i_tbterm" type="number" value="360" oninput="calc()"></div><div></div></div>
+      <div class="row"><div><label>Buyer term (mo)</label><input id="i_tbterm" type="number" oninput="calc()"></div><div></div></div>
     </div>
     <div class="card">
       <h2>Property Summary (editable)</h2>
@@ -151,13 +172,14 @@ a.src{color:#1a56c4}
 
   <!-- RIGHT -->
   <div>
-    <div class="card">
+    <div class="card" id="analysisCard">
       <h2>Deal Analysis</h2>
-      <div id="rep_banner" class="banner mid">&mdash;</div>
+      <div id="rep_banner" class="banner wait">&mdash;</div>
+      <div id="needBox"></div>
       <div id="rep_kpi" class="kpis"></div>
       <table id="rep_deal" style="margin-top:10px"></table>
+      <div id="zeroBox" class="zerobox"></div>
     </div>
-
 
     <div class="card">
       <h2>Rental Comps (editable)</h2>
@@ -166,14 +188,14 @@ a.src{color:#1a56c4}
       </div>
       <label>Comps (source &mdash; figure)</label>
       <div id="rentRows" class="cmpgrid"></div>
-      <button class="btn alt sm noprint" onclick="addRent()">+ Add rental comp</button>
+      <button class="btn alt sm noprint" onclick="addRent();save()">+ Add rental comp</button>
     </div>
 
     <div class="card">
       <h2>Sale Comps (editable)</h2>
       <label>Comps (address / size / price / status)</label>
       <div id="saleRows" class="cmpgrid"></div>
-      <button class="btn alt sm noprint" onclick="addSale()">+ Add sale comp</button>
+      <button class="btn alt sm noprint" onclick="addSale();save()">+ Add sale comp</button>
       <div class="row" style="margin-top:8px"><div><label>Est. ARV</label><input id="s_arv"></div><div></div></div>
     </div>
 
@@ -187,14 +209,13 @@ a.src{color:#1a56c4}
       <h2>Risk</h2>
       <table id="rep_risk"></table>
     </div>
-
   </div>
 </div>
 <div class="sub" style="margin-top:8px">Not investment, legal, or tax advice. Verify all figures before an offer.</div>
 </div>
 
 <script>
-/* ===== per-state defaults + record/land-bank/code links ===== */
+/* ===== per-state defaults + record/land-bank/code links (other states: Claude fills from research) ===== */
 var STATES={
  MI:{mills:47.6,rate:8,records:"https://bsaonline.com",recordsName:"BS&A Online (MI parcel/tax)",landbank:"https://www.michigan.gov/landbank",code:"https://www.michigan.gov/"},
  MO:{mills:10,rate:9,records:"https://www.missouriassessors.com/",recordsName:"MissouriAssessors.com (statewide)",landbank:"https://www.stlouislra.com/",code:"https://www.stlouis-mo.gov/government/departments/public-safety/building/"},
@@ -208,40 +229,81 @@ var STATES={
  WI:{mills:18,rate:8,records:"https://county.milwaukee.gov/EN/Treasurer",recordsName:"County Treasurer (WI)",landbank:"https://city.milwaukee.gov/DCD",code:"https://city.milwaukee.gov/dns"},
  TN:{mills:7,rate:9,records:"https://assessment.cot.tn.gov/TPAD",recordsName:"TN Comptroller property search (statewide, 86 counties)",landbank:"https://www.memphistn.gov/",code:"https://www.memphistn.gov/government/code-enforcement/"}
 };
+var ALL_STATES="AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY".split(" ");
+/* usury caps on file (null = no cap for this deal type); states not listed show "Verify" */
+var USURY={IL:null,MI:11,OH:25,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null,GA:null,TN:null};
 
-var RESEARCH = {};  // Claude fills this when you give an address
+/* ===== the fixed input set: same every time ===== */
+var INPUTS=[
+ ['addr','Address'],['city','City'],['state','State'],['zip','ZIP'],['dealtype','Deal type'],
+ ['m_val','True cash value'],['m_mills','Millage'],['m_sev','MI SEV (Yes/No)'],
+ ['in_dwell','Dwelling (ACV)'],['in_rate','Insurance rate / $1,000'],['in_liab','Liability'],
+ ['i_price','Purchase price'],['i_closepct','Buy closing %'],['i_repairs','Make-ready $'],['i_bog','BOG costs $'],
+ ['i_upins','Upfront insurance $'],['i_legal','Servicing /mo'],['i_funding','Funding'],['i_opp','Opp cost % (cash)'],
+ ['i_ustate','State (usury)'],['i_pmlamt','Loan amount (PML)'],['i_pmlrate','PML rate %'],['i_pmlterm','PML term (mo)'],
+ ['i_tbsale','Resale to end buyer'],['i_tbdown','Buyer down'],['i_tbrate','Buyer rate %'],['i_tbterm','Buyer term (mo)']
+];
+var LBL={}; INPUTS.forEach(function(x){LBL[x[0]]=x[1];});
+LBL.m_val='True cash value (or Purchase price)'; LBL.i_upins='Upfront insurance $ (fills from the Insurance card)';
+var OPTIONAL_ZERO=['i_repairs','i_bog','i_legal','i_tbdown']; /* blank counts as $0 */
+
+var RESEARCH = {};  // filled from Claude's reply (paste box or link)
 
 function $(id){return document.getElementById(id)}
-function val(id){var e=$(id);return e?e.value:''}
+function val(id){var e=$(id);return e?(''+e.value).trim():''}
+function blank(id){return val(id)===''}
+function num(id){return parseFloat(val(id))||0}
 function money(n){return '$'+Math.round(n).toLocaleString()}
 function money2(n){return '$'+(Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n,d){return (Math.round(n*Math.pow(10,d||1))/Math.pow(10,d||1))+'%'}
-function esc(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function esc(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function enc(s){return encodeURIComponent(s||'')}
-function amort(P,ratePct,n){var r=ratePct/100/12;if(P<=0||r<=0)return P>0?P/n:0;return P*r/(1-Math.pow(1+r,-n));}
+function amort(P,ratePct,n){var r=ratePct/100/12;if(P<=0||n<=0)return 0;if(r<=0)return P/n;return P*r/(1-Math.pow(1+r,-n));}
+function req(ids){return ids.filter(blank)}
+function uniq(a){var o=[];a.forEach(function(x){if(o.indexOf(x)<0)o.push(x);});return o}
+function names(ids){return ids.map(function(i){return LBL[i]||i})}
+function short(ids){var n=names(ids).map(function(s){return s.replace(/ \(.*\)$/,'')});return n.length<=2?n.join(', '):n.slice(0,2).join(', ')+' +'+(n.length-2)+' more'}
 
+/* ===== tax ===== */
+var TAX={needs:[],mo:0};
 function millage(){
-  var v=(+val('m_val')|| +val('i_price')||0), mills=+val('m_mills')||0, sev=val('m_sev')==='1';
-  var taxable=sev?v*0.5:v, annual=taxable*mills/1000, mo=annual/12;
-  if(v>0&&mills>0){$('m_annual').value=money(annual);$('i_tax').value=mo.toFixed(2);}else{$('m_annual').value='—';$('i_tax').value='';}
+  var n=[]; if(blank('m_val')&&blank('i_price'))n.push('m_val'); if(blank('m_mills'))n.push('m_mills'); if(blank('m_sev'))n.push('m_sev');
+  var v=blank('m_val')?num('i_price'):num('m_val'), mills=num('m_mills'), sev=val('m_sev')==='1';
+  var annual=(sev?v*0.5:v)*mills/1000, mo=annual/12;
+  TAX={needs:n,mo:mo};
+  if(!n.length){$('m_annual').value=money(annual);$('i_tax').value=mo.toFixed(2);$('m_annual').placeholder='';$('i_tax').placeholder='';}
+  else{$('m_annual').value='';$('i_tax').value='';$('m_annual').placeholder=$('i_tax').placeholder='Needs '+short(n);}
+  var h=[]; if(!n.length&&blank('m_val'))h.push('Using purchase price as the value because True cash value is blank.');
+  if(RESEARCH.taxAnnualBill)h.push('County tax bill found in research: '+money(+(''+RESEARCH.taxAnnualBill).replace(/[^0-9.]/g,'')||0)+' / yr.');
+  $('taxHint').textContent=h.join(' ');
   calc();
 }
+/* ===== insurance ===== */
+var INS={needs:[],mo:0,annual:0};
+function upinsTyped(){ $('i_upins').dataset.manual=blank('i_upins')?'':'1'; }
 function insurance(){
-  var d=+val('in_dwell')||0,r=+val('in_rate')||0,li=+val('in_liab')||0;
-  var annual=Math.max(0,d/1000*r+li),mo=annual/12;
-  $('in_annual').value=money(annual);$('i_ins').value=mo.toFixed(2);$('i_upins').value=Math.round(annual);
+  var n=req(['in_dwell','in_rate','in_liab']);
+  var annual=Math.max(0,num('in_dwell')/1000*num('in_rate')+num('in_liab')), mo=annual/12;
+  INS={needs:n,mo:mo,annual:annual};
+  if(!n.length){$('in_annual').value=money(annual);$('i_ins').value=mo.toFixed(2);$('in_annual').placeholder=$('i_ins').placeholder='';
+    if(!$('i_upins').dataset.manual)$('i_upins').value=Math.round(annual);}
+  else{$('in_annual').value='';$('i_ins').value='';$('in_annual').placeholder=$('i_ins').placeholder='Needs '+short(n);
+    if(!$('i_upins').dataset.manual)$('i_upins').value='';}
   calc();
 }
-function applyState(){
-  var st=val('state'); $('i_ustate').value=st; var s=STATES[st];
-  if(s){ if(!val('m_mills'))$('m_mills').value=s.mills; $('in_rate').value=s.rate; $('m_sev').value=(st==='MI')?'1':'0'; }
+function applyState(fromUser){
+  var st=val('state'); if(!st)return;
+  if(fromUser||blank('i_ustate'))$('i_ustate').value=st;
+  var s=STATES[st];
+  if(s){ if(blank('m_mills'))$('m_mills').value=s.mills; if(blank('in_rate'))$('in_rate').value=s.rate; }
+  if(blank('m_sev')||fromUser)$('m_sev').value=(st==='MI')?'1':'0';
   millage(); insurance(); buildLinks();
 }
 
 /* ===== links ===== */
 function fullAddr(){return [val('addr'),val('city'),val('state'),val('zip')].filter(Boolean).join(', ');}
 function buildLinks(){
-  var a=fullAddr(), st=val('state'), city=val('city'), zip=val('zip'), s=STATES[st]||{};
+  var a=fullAddr(), st=val('state'), city=val('city'), s=STATES[st]||{};
   if(!a){$('rep_links').innerHTML='<span class="mini">Enter an address + state to generate links.</span>';return;}
   var L=[];
   L.push(['Zillow','https://www.zillow.com/homes/'+enc(a)+'_rb/']);
@@ -253,10 +315,10 @@ function buildLinks(){
   var R=RESEARCH||{};
   var recUrl=R.recordsUrl||s.records, recName=R.recordsName||s.recordsName||st;
   var codeUrl=R.codeUrl||s.code, lbUrl=R.landbankUrl||s.landbank;
-  if(recUrl)L.push(['County records &mdash; PID / legal / taxes ('+recName+')',recUrl]);
+  if(recUrl)L.push(['County records &mdash; PID / legal / taxes ('+esc(recName)+')',recUrl]);
   if(codeUrl)L.push(['Code &amp; blight cases',codeUrl]);
   if(lbUrl)L.push(['Land bank',lbUrl]);
-  $('rep_links').innerHTML=L.map(function(x){return '<a class="src" href="'+x[1]+'" target="_blank">'+x[0]+' &#8599;</a>';}).join('');
+  $('rep_links').innerHTML=L.map(function(x){return '<a class="src" href="'+esc(x[1])+'" target="_blank" rel="noopener">'+x[0]+' &#8599;</a>';}).join('');
 }
 
 /* ===== editable comps ===== */
@@ -270,76 +332,127 @@ function addSale(addr,size,price,status){
   d.innerHTML='<input placeholder="Address" value="'+esc(addr||'')+'"><input placeholder="Size" value="'+esc(size||'')+'"><input placeholder="Price" value="'+esc(price||'')+'"><input placeholder="Status" value="'+esc(status||'')+'">';
   $('saleRows').appendChild(d);
 }
+function rowsOf(id){return [].map.call($(id).children,function(r){return [].map.call(r.querySelectorAll('input'),function(i){return i.value})}).filter(function(r){return r.join('').trim()!==''})}
 
-/* ===== deal (exact replica) ===== */
+/* ===== deal math (same formulas as before) + what each result still needs ===== */
 function deal(){
-  var d={purchasePrice:+val('i_price')||0,buyClosingPct:+val('i_closepct')||0,initialRepairs:+val('i_repairs')||0,
-    bogCosts:+val('i_bog')||0,upfrontInsurance:+val('i_upins')||0,fundingType:val('i_funding'),
-    pmlLoanAmount:+val('i_pmlamt')||0,pmlRate:+val('i_pmlrate')||0,pmlTermMonths:+val('i_pmlterm')||0,oppPct:+val('i_opp')||0,
-    propTax:+val('i_tax')||0,insurance:+val('i_ins')||0,legal:+val('i_legal')||0,
-    tbSale:+val('i_tbsale')||0,tbDown:+val('i_tbdown')||0,tbRate:+val('i_tbrate')||0,tbTerm:+val('i_tbterm')||360,state:(val('i_ustate')||'').toUpperCase()};
+  var d={purchasePrice:num('i_price'),buyClosingPct:num('i_closepct'),initialRepairs:num('i_repairs'),
+    bogCosts:num('i_bog'),upfrontInsurance:num('i_upins'),fundingType:val('i_funding'),
+    pmlLoanAmount:num('i_pmlamt'),pmlRate:num('i_pmlrate'),pmlTermMonths:num('i_pmlterm'),oppPct:num('i_opp'),
+    propTax:TAX.mo,insurance:INS.mo,legal:num('i_legal'),
+    tbSale:num('i_tbsale'),tbDown:num('i_tbdown'),tbRate:num('i_tbrate'),tbTerm:num('i_tbterm'),state:(val('i_ustate')||val('state')).toUpperCase()};
+  var pml=d.fundingType==='PML', cashF=d.fundingType==='Self-Funded';
   var buyClosing=d.purchasePrice*d.buyClosingPct/100;
-  var down=d.fundingType==='PML'?Math.max(d.purchasePrice-d.pmlLoanAmount,0):d.purchasePrice;
+  var down=pml?Math.max(d.purchasePrice-d.pmlLoanAmount,0):d.purchasePrice;
   var cashInvested=down+buyClosing+d.initialRepairs+d.bogCosts+d.upfrontInsurance;
-  var pmlPay=amort(d.pmlLoanAmount,d.pmlRate,d.pmlTermMonths);
-  var oppMo=d.fundingType==='Self-Funded'?cashInvested*d.oppPct/100/12:0;
+  var pmlPay=pml?amort(d.pmlLoanAmount,d.pmlRate,d.pmlTermMonths):0;
+  var oppMo=cashF?cashInvested*d.oppPct/100/12:0;
   var carry=d.propTax+d.insurance+d.legal;
   var tbLoan=d.tbSale-d.tbDown, tbPay=amort(tbLoan,d.tbRate,d.tbTerm);
-  var profit1=d.fundingType==='PML'?tbPay-carry-pmlPay:tbPay-carry-oppMo;
+  var profit1=pml?tbPay-carry-pmlPay:tbPay-carry-oppMo;
   var profit2=tbPay-carry;
   var margin1=tbPay>0?profit1/tbPay*100:0;
   var netCash=Math.max(cashInvested-d.tbDown,0);
   var coc1=netCash>0?profit1*12/netCash*100:0;
   var totalRecv=tbPay*d.tbTerm+d.tbDown;
-  var pmlDebt=d.fundingType==='PML'?pmlPay*d.pmlTermMonths:0;
-  var pmlPayoff=d.fundingType==='PML'?d.pmlLoanAmount:0;
+  var pmlDebt=pml?pmlPay*d.pmlTermMonths:0;
+  var pmlPayoff=pml?d.pmlLoanAmount:0;
   var projProfit=totalRecv-cashInvested-(carry*d.tbTerm)-pmlDebt-pmlPayoff;
   var projROI=cashInvested>0?projProfit/cashInvested*100:0;
-  var payoffYear=Math.ceil(d.pmlTermMonths/12)+1, tbYears=Math.round(d.tbTerm/12);
+  var payoffYear=Math.ceil(d.pmlTermMonths/12)+1;
   var status;
-  if(d.fundingType==='PML'){status=(profit1<0||profit2<0)?'NEGATIVE':((profit1>=0&&profit2>=500)?'STRONG':'TIGHT');}
+  if(pml){status=(profit1<0||profit2<0)?'NEGATIVE':((profit1>=0&&profit2>=500)?'STRONG':'TIGHT');}
   else{status=profit1<0?'NEGATIVE':(profit1>=500?'STRONG':'TIGHT');}
-  var caps={IL:null,MI:11,OH:25,FL:18,WI:null,MO:null,IA:null,AL:null,MS:null,IN:null,GA:null,TN:null};
-  var cap=caps[d.state]!==undefined?caps[d.state]:null; var usuryOK=cap===null?true:d.tbRate<=cap;
-  return {d:d,buyClosing:buyClosing,cashInvested:cashInvested,pmlPay:pmlPay,oppMo:oppMo,carry:carry,tbLoan:tbLoan,tbPay:tbPay,
+  var known=USURY.hasOwnProperty(d.state), cap=known?USURY[d.state]:null, usuryOK=cap===null?true:d.tbRate<=cap;
+
+  /* needs */
+  var N={};
+  N.fund=req(['i_funding']);
+  N.close=req(['i_price','i_closepct']);
+  N.upins=blank('i_upins')?['i_upins']:[];
+  N.cash=uniq(N.close.concat(N.fund,pml?req(['i_pmlamt']):[],N.upins));
+  N.pmlPay=pml?req(['i_pmlamt','i_pmlrate','i_pmlterm']):[];
+  N.opp=cashF&&num('i_opp')>0?N.cash:[];
+  N.carry=uniq(TAX.needs.concat(INS.needs));
+  N.wrap=req(['i_tbsale','i_tbrate','i_tbterm']);
+  N.p1=uniq(N.wrap.concat(N.carry,N.fund,pml?N.pmlPay:N.opp));
+  N.p2=uniq(N.wrap.concat(N.carry));
+  N.coc=uniq(N.p1.concat(N.cash));
+  N.pp=uniq(N.wrap.concat(N.carry,N.cash,N.fund,pml?N.pmlPay:[]));
+  N.status=uniq(N.p1.concat(pml?N.p2:[]));
+  N.usury=uniq(req(['i_tbrate']).concat(d.state?[]:['i_ustate']));
+  return {d:d,pml:pml,cashF:cashF,buyClosing:buyClosing,cashInvested:cashInvested,pmlPay:pmlPay,oppMo:oppMo,carry:carry,tbLoan:tbLoan,tbPay:tbPay,
     netCash:netCash,profit1:profit1,profit2:profit2,margin1:margin1,coc1:coc1,projProfit:projProfit,projROI:projROI,
-    status:status,usuryOK:usuryOK,cap:cap,payoffYear:payoffYear,tbYears:tbYears};
+    status:status,usuryOK:usuryOK,usuryKnown:known,cap:cap,payoffYear:payoffYear,N:N};
 }
 function row(k,v){return '<tr><td>'+k+'</td><td class="r">'+v+'</td></tr>'}
+function show(needs,txt){return needs.length?'<span class="needs">Needs '+esc(names(needs).join(', '))+'</span>':txt}
 function calc(){
-  var c=deal(), pml=c.d.fundingType==='PML';
-  var p6=(pml?c.profit2:c.profit1);
+  var c=deal(), N=c.N, pml=c.pml;
+  var p6=(pml?c.profit2:c.profit1), n6=pml?N.p2:N.p1;
+  function tile(label,needs,txt,cls){return needs.length?['<span class="nd">Needs '+esc(short(needs))+'</span>',label,'']:[txt,label,cls];}
+  var usTile;
+  if(N.usury.length)usTile=tile('Usury',N.usury,'','');
+  else if(!c.usuryKnown)usTile=['? Verify','Usury '+c.d.state+' (no cap on file)','w'];
+  else usTile=[c.usuryOK?'✓ OK':'✗ FAIL','Usury '+c.d.state+(c.cap?' ('+c.cap+'% cap)':''),c.usuryOK?'g':'b'];
   $('rep_kpi').innerHTML=[
-    ['Cash Invested',money(c.cashInvested),''],
-    ['Profit Yr 1–5',money2(c.profit1),c.profit1>=500?'g':c.profit1>=0?'w':'b'],
-    ['Profit Yr 6–30',money2(p6),p6>=500?'g':p6>=0?'w':'b'],
-    ['Cash-on-Cash',pct(c.coc1,0),c.coc1>=10?'g':c.coc1>=6?'w':'b'],
-    ['Projected ROI',pct(c.projROI,0),c.projROI>=100?'g':'w'],
-    ['Carry / mo',money2(c.carry),''],
-    ['Wrap pmt / mo',money2(c.tbPay),''],
-    ['Projected Profit',money(c.projProfit),c.projProfit>=0?'g':'b'],
-    ['Usury '+c.d.state,c.usuryOK?'✓ OK':'✗ FAIL',c.usuryOK?'g':'b']
-  ].map(function(k){return '<div class="kpi"><div class="v '+k[2]+'">'+k[1]+'</div><div class="k">'+k[0]+'</div></div>'}).join('');
+    tile('Cash Invested',N.cash,money(c.cashInvested),''),
+    tile('Profit Yr 1–5',N.p1,money2(c.profit1),c.profit1>=500?'g':c.profit1>=0?'w':'b'),
+    tile('Profit Yr 6–30',n6,money2(p6),p6>=500?'g':p6>=0?'w':'b'),
+    tile('Cash-on-Cash',N.coc,pct(c.coc1,0),c.coc1>=10?'g':c.coc1>=6?'w':'b'),
+    tile('Projected ROI',N.pp,pct(c.projROI,0),c.projROI>=100?'g':'w'),
+    tile('Carry / mo',N.carry,money2(c.carry),''),
+    tile('Wrap pmt / mo',N.wrap,money2(c.tbPay),''),
+    tile('Projected Profit',N.pp,money(c.projProfit),c.projProfit>=0?'g':'b'),
+    usTile
+  ].map(function(k){return '<div class="kpi"><div class="v '+k[2]+'">'+k[0]+'</div><div class="k">'+k[1]+'</div></div>'}).join('');
   var b=$('rep_banner');
-  b.className='banner '+(c.status==='STRONG'?'ok':c.status==='TIGHT'?'mid':'no');
-  b.textContent=(c.status==='STRONG'?'✅':c.status==='TIGHT'?'⚠️':'❌')+' Deal Status: '+c.status;
-  var p1lab=pml?('Yr 1–'+(c.payoffYear-1)+' (loan active)'):'Ongoing';
-  var rows=row('Buy closing ('+c.d.buyClosingPct+'%)',money2(c.buyClosing))
-    +row('Cash invested',money2(c.cashInvested))
-    +row('Net cash (buyer down returned)',money2(c.netCash))
-    +(pml?row('Loan payment /mo',money2(c.pmlPay)):row('Opportunity cost /mo',money2(c.oppMo)))
-    +row('Total carry /mo',money2(c.carry))
-    +row('Wrap loan / payment',money(c.tbLoan)+' / '+money2(c.tbPay))
-    +row('<b>Monthly profit — Yr 1–5'+(pml?' (loan active)':'')+'</b>','<b>'+money2(c.profit1)+'</b>')
-    +row('<b>Monthly profit — Yr 6–30'+(pml?' (loan paid off)':' (ongoing)')+'</b>','<b>'+money2(p6)+'</b>')
-    +row('Monthly margin',pct(c.margin1))
-    +row('Cash-on-cash',pct(c.coc1))
-    +row('Projected profit (wrap term)',money(c.projProfit))
-    +row('Projected ROI',pct(c.projROI,0));
+  if(N.status.length){b.className='banner wait';b.textContent='Deal Status: waiting on inputs';}
+  else{b.className='banner '+(c.status==='STRONG'?'ok':c.status==='TIGHT'?'mid':'no');
+    b.textContent=(c.status==='STRONG'?'✅':c.status==='TIGHT'?'⚠️':'❌')+' Deal Status: '+c.status;}
+  var rows=row('Buy closing'+(blank('i_closepct')?'':' ('+c.d.buyClosingPct+'%)'),show(N.close,money2(c.buyClosing)))
+    +row('Cash invested',show(N.cash,money2(c.cashInvested)))
+    +row('Net cash (buyer down returned)',show(N.cash,money2(c.netCash)))
+    +(pml?row('Loan payment /mo',show(N.pmlPay,money2(c.pmlPay))):(c.cashF?row('Opportunity cost /mo',show(N.opp,money2(c.oppMo))):''))
+    +row('Total carry /mo',show(N.carry,money2(c.carry)))
+    +row('Wrap loan / payment',show(N.wrap,money(c.tbLoan)+' / '+money2(c.tbPay)))
+    +row('<b>Monthly profit — Yr 1–5'+(pml?' (loan active)':'')+'</b>',show(N.p1,'<b>'+money2(c.profit1)+'</b>'))
+    +row('<b>Monthly profit — Yr 6–30'+(pml?' (loan paid off)':' (ongoing)')+'</b>',show(n6,'<b>'+money2(p6)+'</b>'))
+    +row('Monthly margin',show(N.p1,pct(c.margin1)))
+    +row('Cash-on-cash',show(N.coc,pct(c.coc1)))
+    +row('Projected profit (wrap term)',show(N.pp,money(c.projProfit)))
+    +row('Projected ROI',show(N.pp,pct(c.projROI,0)));
   $('rep_deal').innerHTML=rows;
+
+  /* one list of everything still needed + highlight those boxes */
+  var all=uniq([].concat(N.cash,N.pmlPay,N.carry,N.wrap,N.p1,N.p2,N.usury));
+  INPUTS.forEach(function(x){var e=$(x[0]);if(e)e.classList.toggle('need',all.indexOf(x[0])>=0);});
+  if(all.indexOf('m_val')>=0)$('i_price').classList.add('need');
+  if(all.indexOf('i_upins')>=0)INS.needs.forEach(function(i){$(i).classList.add('need');});
+  $('needBox').innerHTML=all.length
+    ?'<div class="needbox"><b>To finish every number, fill in:</b> '+esc(names(all).join(' · '))+'</div>'
+    :'<div class="needbox done"><b>All calculations are complete.</b></div>';
+  var z=OPTIONAL_ZERO.filter(blank); if(c.cashF&&blank('i_opp'))z.push('i_opp');
+  $('zeroBox').textContent=z.length?'Counted as $0 because blank: '+names(z).join(', ')+'.':'';
+  updateMeter(); save();
+}
+function applicableInputs(){
+  var f=val('i_funding');
+  return INPUTS.filter(function(x){var id=x[0];
+    if(f==='Self-Funded'&&/^i_pml/.test(id))return false;
+    if(f==='PML'&&id==='i_opp')return false;
+    return true;});
+}
+function updateMeter(){
+  var a=applicableInputs(), done=a.filter(function(x){return !blank(x[0])}).length;
+  $('meterTxt').textContent=done+' of '+a.length; $('meterBar').style.width=Math.round(done/a.length*100)+'%';
 }
 
-/* ===== risk + checklist + research load ===== */
+/* ===== risk + checklist ===== */
+var TODO=['Confirm PID & legal on county records','Confirm taxable value + PRE / homestead status',
+  'Search county code & blight cases','BOG walk-through','Roof & foundation assessment',
+  'Check utilities for inspection requirement','Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote',
+  'Review prelim title commitment','Verify wire instructions','Review settlement statement before wire'];
 function renderRisk(){
   var R=RESEARCH;
   $('rep_risk').innerHTML=
@@ -347,64 +460,134 @@ function renderRisk(){
    +'<tr><td>Crime</td><td class="r">'+esc(R.crime||'— (see crime link)')+'</td></tr>'
    +'<tr><td>Land bank</td><td class="r">'+esc(R.landbank||'— (see land bank link)')+'</td></tr>';
 }
-function renderTodo(){
-  var TODO=['Confirm PID & legal on county records','Confirm taxable value + PRE / homestead status',
-    'Search county code & blight cases','BOG walk-through','Roof & foundation assessment',
-    'Check utilities for inspection requirement','Confirm land contract / seller-finance terms','Obtain ACV insurance bind quote',
-    'Review prelim title commitment','Verify wire instructions','Review settlement statement before wire'];
-  $('rep_todo').innerHTML='<div style="columns:2;column-gap:18px">'+TODO.map(function(t){
-    return '<label style="display:block;font-size:12px;color:#1b2430;margin:3px 0"><input type="checkbox" style="width:auto;margin-right:6px">'+t+'</label>';}).join('')+'</div>';
+function renderTodo(checked){
+  checked=checked||[];
+  $('rep_todo').innerHTML='<div style="columns:2;column-gap:18px">'+TODO.map(function(t,i){
+    return '<label style="display:block;font-size:12px;color:#1b2430;margin:3px 0"><input type="checkbox" style="width:auto;margin-right:6px"'+(checked[i]?' checked':'')+'>'+t+'</label>';}).join('')+'</div>';
 }
 
-function loadResearch(){
-  var R=RESEARCH||{}; var has=function(k){return R[k]!==undefined&&R[k]!==null&&R[k]!=='';};
-  $('soldbadge').innerHTML=has('status')?'<div class="status-sold">⚠ '+esc(R.status)+'</div>':'';
-  if(has('addr'))$('addr').value=R.addr; if(has('city'))$('city').value=R.city;
-  if(has('state')){$('state').value=R.state;$('i_ustate').value=R.state;}
-  if(has('zip'))$('zip').value=R.zip;
-  if(has('dealtype')){var dt=$('dealtype');for(var i=0;i<dt.options.length;i++){if(dt.options[i].text===R.dealtype)dt.selectedIndex=i;}}
-  if(has('pin'))$('pin').value=R.pin; if(has('mls'))$('mls').value=R.mls; if(has('listPrice'))$('listp').value=R.listPrice;
-  if(has('trueCashValue'))$('m_val').value=R.trueCashValue; if(has('mills'))$('m_mills').value=R.mills;
-  if(R.miSEV!==undefined)$('m_sev').value=R.miSEV?'1':'0';
-  if(has('insDwell'))$('in_dwell').value=R.insDwell; if(has('insRate'))$('in_rate').value=R.insRate; if(has('insLiab'))$('in_liab').value=R.insLiab;
-  if(has('purchase'))$('i_price').value=R.purchase;
-  if(has('style'))$('p_style').value=R.style; if(has('beds'))$('p_beds').value=R.beds; if(has('baths'))$('p_baths').value=R.baths;
-  if(has('sqft'))$('p_sqft').value=R.sqft; if(has('built'))$('p_built').value=R.built; if(has('lot'))$('p_lot').value=R.lot;
-  if(has('found'))$('p_found').value=R.found; if(has('terms'))$('p_terms').value=R.terms; if(has('owner'))$('p_owner').value=R.owner;
-  if(has('condition'))$('p_cond').value=R.condition;
-  if(has('rentLow'))$('r_low').value=R.rentLow; if(has('rentMid'))$('r_mid').value=R.rentMid; if(has('rentHigh'))$('r_high').value=R.rentHigh;
-  $('rentRows').innerHTML=''; (R.rentComps||[]).forEach(function(c){addRent(c[0],c[1]);}); if(!(R.rentComps&&R.rentComps.length)){addRent();addRent();}
-  $('saleRows').innerHTML=''; (R.saleComps||[]).forEach(function(c){addSale(c[0],c[1],c[2],c[3]);}); if(!(R.saleComps&&R.saleComps.length)){addSale();addSale();}
-  if(has('arv'))$('s_arv').value=R.arv;
-  if(has('state'))applyState();
-  if(has('addr')||has('style')){ var rb=$('researchBar'); if(rb){rb.style.display='none';} if(window._rbTimer)clearInterval(window._rbTimer); }
-  renderRisk(); renderTodo(); buildLinks(); millage(); insurance(); calc();
+/* ===== load Claude's research into the page =====
+   Property facts from research replace what is on screen.
+   Your deal inputs ("inputs") only fill boxes that are still blank. */
+function applyResearch(R){
+  R=R||{}; RESEARCH=R;
+  var has=function(k){return R[k]!==undefined&&R[k]!==null&&(''+R[k]).trim()!==''&&!(Array.isArray(R[k])&&!R[k].length);};
+  var setIfBlank=function(id,v){if($(id)&&blank(id)&&v!==undefined&&v!==null&&(''+v).trim()!=='')$(id).value=(''+v).trim();};
+  var setv=function(id,k){if(has(k))$(id).value=(''+R[k]).trim();};
+  if(R.inputs&&typeof R.inputs==='object'){INPUTS.forEach(function(x){setIfBlank(x[0],R.inputs[x[0]]);});
+    if(!blank('i_upins'))upinsTyped();}
+  setIfBlank('addr',R.addr); setIfBlank('city',R.city); setIfBlank('zip',R.zip);
+  if(has('state')&&blank('state')){var st=(''+R.state).trim().toUpperCase(); if(ALL_STATES.indexOf(st)>=0)$('state').value=st;}
+  setv('pin','pin'); setv('mls','mls'); setv('listp','listPrice');
+  if(has('trueCashValue'))$('m_val').value=(''+R.trueCashValue).replace(/[^0-9.]/g,'');
+  if(has('mills'))$('m_mills').value=(''+R.mills).replace(/[^0-9.]/g,'');
+  if(R.miSEV===true||R.miSEV==='true')$('m_sev').value='1'; else if(R.miSEV===false||R.miSEV==='false')$('m_sev').value='0';
+  setv('p_style','style'); setv('p_beds','beds'); setv('p_baths','baths'); setv('p_sqft','sqft'); setv('p_built','built');
+  setv('p_lot','lot'); setv('p_found','found'); setv('p_terms','terms'); setv('p_owner','owner'); setv('p_cond','condition');
+  ['rentLow','rentMid','rentHigh'].forEach(function(k,i){if(has(k))$(['r_low','r_mid','r_high'][i]).value=(''+R[k]).replace(/[^0-9.]/g,'');});
+  if(has('rentComps')){$('rentRows').innerHTML='';R.rentComps.forEach(function(c){c=[].concat(c);addRent(c[0],c[1]);});}
+  if(has('saleComps')){$('saleRows').innerHTML='';R.saleComps.forEach(function(c){c=[].concat(c);addSale(c[0],c[1],c[2],c[3]);});}
+  setv('s_arv','arv');
+  if(val('state'))applyState(false);
+  refreshAll();
+}
+function refreshAll(){
+  $('soldbadge').innerHTML=RESEARCH.status?'<div class="status-sold">⚠ '+esc(RESEARCH.status)+'</div>':'';
+  renderRisk(); buildLinks(); millage(); insurance(); calc();
 }
 
-function askClaudeResearch(){
-  var a=fullAddr()||'[enter the property address above]';
-  var p="Research this property for my RenewEQ analyzer and fill the panel: "+a+
-    ". From Zillow/Trulia and county records, pull the property summary (style, beds, baths, sqft, year built, lot, foundation, terms, owner, condition), the parcel/PIN, MLS#, list or last-sold price, property tax and assessed value; and gather rental comps (low / middle / high $/mo) and 3-5 recent sale comps (address, size, price, status). Then update the analyzer.";
-  var t=$('cp_text'); t.value=p; $('claudePrompt').style.display='block';
-  var rb=$('researchBar'); rb.style.display='block';
-  if(window._rbTimer)clearInterval(window._rbTimer);
-  var n=0; window._rbTimer=setInterval(function(){n=(n+1)%4;$('rbdots').textContent='.'.repeat(n);},450);
-  try{ t.select(); document.execCommand('copy'); }catch(e){}
-  try{ if(navigator.clipboard) navigator.clipboard.writeText(p); }catch(e){}
+/* ===== keep your work if the tab reloads (this browser only) ===== */
+var KEY='reneweq_analyzer_v2', saveT=null, loading=true;
+function snapshot(){
+  var f={}; document.querySelectorAll('.grid input[id], .grid select[id]').forEach(function(e){if(!e.readOnly)f[e.id]=e.value;});
+  return {fields:f,upinsManual:$('i_upins').dataset.manual||'',rent:rowsOf('rentRows'),sale:rowsOf('saleRows'),
+    todo:[].map.call(document.querySelectorAll('#rep_todo input'),function(c){return c.checked}),research:RESEARCH};
+}
+function save(){ if(loading)return; clearTimeout(saveT); saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(snapshot()));}catch(e){}},300); }
+function restore(){
+  var s=null; try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+  if(!s)return false;
+  Object.keys(s.fields||{}).forEach(function(id){if($(id))$(id).value=s.fields[id];});
+  $('i_upins').dataset.manual=s.upinsManual||'';
+  $('rentRows').innerHTML=''; (s.rent||[]).forEach(function(r){addRent(r[0],r[1]);});
+  $('saleRows').innerHTML=''; (s.sale||[]).forEach(function(r){addSale(r[0],r[1],r[2],r[3]);});
+  renderTodo(s.todo); RESEARCH=s.research||{};
+  return true;
+}
+
+/* ===== the request each user pastes into their own Claude ===== */
+function buildRequest(){
+  var inputs={}, lines=[];
+  INPUTS.forEach(function(x){var v=val(x[0]); if(x[0]==='m_sev')v=v==='1'?'Yes':v==='0'?'No':''; if(x[0]==='in_liab')v=v==='450'?'$1,000,000':v==='250'?'$300,000':'';
+    if(x[0]==='i_funding')v=v==='PML'?'Financed (private loan)':v==='Self-Funded'?'Cash (self-funded)':'';
+    inputs[x[0]]=val(x[0]); lines.push('- '+x[1]+': '+(v||'(blank)'));});
+  var tpl={addr:"",city:"",state:"",zip:"",status:"",pin:"",mls:"",listPrice:"",owner:"",style:"",beds:"",baths:"",sqft:"",built:"",lot:"",found:"",terms:"",condition:"",
+    trueCashValue:"",mills:"",miSEV:false,taxAnnualBill:"",rentLow:"",rentMid:"",rentHigh:"",rentComps:[["source or address","$/mo, bd/ba, sqft"]],
+    saleComps:[["address","bd/ba sqft","price","sold date or status"]],arv:"",flood:"",crime:"",landbank:"",recordsName:"",recordsUrl:"",codeUrl:"",landbankUrl:"",inputs:inputs};
+  var link=location.origin+location.pathname;
+  return 'RENEWEQ ANALYZER REQUEST\n'
+   +'Property: '+(fullAddr()||'[type the property address here]')+'\n\n'
+   +'My deal inputs (blank means not decided yet; do not change them):\n'+lines.join('\n')+'\n\n'
+   +'Please research this property on the web: the county assessor and treasurer records, the listing (Zillow, Realtor.com, Redfin), rentals with the same bed count in the same ZIP, recent nearby sales, the FEMA flood zone, crime, and any land bank or code enforcement activity.\n\n'
+   +'Reply in this order:\n'
+   +'1. A short plain English summary: what you found, red flags, and anything you could not verify.\n'
+   +'2. One JSON code block using exactly the keys in the template below. Use "" for anything you cannot find. Numbers only, no $ or commas. Copy "inputs" exactly as given.\n'
+   +'   rentComps: 3 to 6 rows of [source or address, "$X/mo, bd/ba, sqft"].\n'
+   +'   saleComps: 3 to 5 rows of [address, "bd/ba sqft", "price", "sold date or status"], sold within about 12 months near the property.\n'
+   +'   trueCashValue: the market value the county uses (Michigan: true cash value = 2 x SEV). mills: total millage rate on that value. miSEV: true only in Michigan.\n'
+   +'   taxAnnualBill: the actual annual tax bill if you find it. status: listing status only if pending, sold, or off market, otherwise "".\n'
+   +'   recordsUrl: this parcel\'s own page on the county site if you can find it. flood, crime, landbank: one short sentence each.\n'
+   +'3. If you can run code, also give me a clickable link that opens the filled analyzer: base64url encode the JSON (UTF-8) and put it after '+link+'#r=\n\n'
+   +'JSON template:\n```json\n'+JSON.stringify(tpl,null,1)+'\n```';
+}
+function copyRequest(){
+  var p=buildRequest(), t=$('cp_text'); t.value=p; $('claudePrompt').hidden=false;
+  var ok=function(){$('cp_label').textContent='Copied. Paste this into a chat in your own Claude account:';};
+  var fail=function(){$('cp_label').textContent='Select all of this text, copy it, and paste it into your Claude chat:'; t.focus(); t.select();};
+  try{ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(p).then(ok,function(){ t.select(); try{document.execCommand('copy')?ok():fail();}catch(e){fail();} }); return; } }catch(e){}
+  t.select(); try{document.execCommand('copy')?ok():fail();}catch(e){fail();}
+}
+
+/* ===== read Claude's reply (JSON block, raw JSON, or the #r= link) ===== */
+function b64uDecode(s){s=s.replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');while(s.length%4)s+='=';var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new TextDecoder().decode(u);}
+function parseReply(t){
+  t=(t||'').trim(); if(!t)return null;
+  var m=t.match(/#r=([A-Za-z0-9_\-+/=%]+)/); if(m){try{return JSON.parse(b64uDecode(decodeURIComponent(m[1])));}catch(e){}}
+  try{return JSON.parse(t);}catch(e){}
+  var re=/```(?:json)?\s*([\s\S]*?)```/gi, f; while((f=re.exec(t))){try{return JSON.parse(f[1]);}catch(e){}}
+  var a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
+  return null;
+}
+function fillFromPaste(){
+  var R=parseReply($('pasteBox').value), m=$('pasteMsg');
+  if(!R||typeof R!=='object'){m.className='msg err';m.textContent='Could not find the JSON in that text. Paste Claude\'s whole reply, including the JSON block.';return;}
+  applyResearch(R); $('pasteBox').value='';
+  m.className='msg ok';m.textContent='Filled. Check the Deal Analysis for anything still needed.';
+  $('analysisCard').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function runResults(){millage();insurance();calc();var b=$('rep_banner');b.style.outline='3px solid #1f8f4e';setTimeout(function(){b.style.transition='outline .6s';b.style.outline='none';},60);b.scrollIntoView({behavior:'smooth',block:'center'});}
 function clearAll(){
-  ['addr','city','state','zip','pin','mls','listp','m_val','m_mills','i_price','i_pmlamt','i_tbsale','i_tbdown','i_ustate',
-   'p_style','p_beds','p_baths','p_sqft','p_built','p_lot','p_found','p_terms','p_owner','p_cond','r_low','r_mid','r_high','s_arv'].forEach(function(id){$(id).value='';});
-  $('i_closepct').value=3;$('i_repairs').value=5000;$('i_bog').value=500;$('i_legal').value=25;$('i_opp').value=0;
-  $('in_rate').value=8;$('in_dwell').value=50000;$('in_liab').value='450';$('m_sev').value='1';
-  $('i_pmlrate').value=10;$('i_pmlterm').value=60;$('i_tbrate').value=10.9;$('i_tbterm').value=360;
-  $('i_funding').value='Self-Funded';$('dealtype').selectedIndex=0;$('i_upins').value='';
-  $('soldbadge').innerHTML=''; RESEARCH={}; if($('researchBar'))$('researchBar').style.display='none'; if(window._rbTimer)clearInterval(window._rbTimer);
-  $('rentRows').innerHTML='';addRent();addRent(); $('saleRows').innerHTML='';addSale();addSale();
-  renderRisk();renderTodo();buildLinks();millage();insurance();calc();
+  document.querySelectorAll('.grid input, .grid select').forEach(function(e){if(e.type==='checkbox')e.checked=false;else if(!e.readOnly)e.value='';});
+  $('i_upins').dataset.manual=''; RESEARCH={}; $('pasteBox').value=''; $('pasteMsg').textContent=''; $('claudePrompt').hidden=true;
+  $('rentRows').innerHTML='';addRent();addRent(); $('saleRows').innerHTML='';addSale();addSale(); renderTodo();
+  try{localStorage.removeItem(KEY);}catch(e){}
+  refreshAll();
 }
-loadResearch();
+
+/* ===== start up ===== */
+(function init(){
+  $('state').innerHTML='<option value="">Select</option>'+ALL_STATES.map(function(s){return '<option>'+s+'</option>'}).join('');
+  renderTodo(); addRent(); addRent(); addSale(); addSale();
+  var restored=restore(); if(!restored)RESEARCH={};
+  var fromLink=null;
+  if(/^#r=/.test(location.hash)){try{fromLink=JSON.parse(b64uDecode(decodeURIComponent(location.hash.slice(3))));}catch(e){}
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
+  loading=false;
+  if(fromLink){applyResearch(fromLink);$('pasteMsg').className='msg ok';$('pasteMsg').textContent='Filled from Claude\'s link.';}
+  else refreshAll();
+  document.addEventListener('input',function(e){if(e.target.closest('.grid'))save();});
+  document.addEventListener('change',function(e){if(e.target.closest('.grid'))save();});
+})();
 </script>
 </body>
 </html>
