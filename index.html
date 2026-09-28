@@ -102,7 +102,7 @@ textarea{resize:vertical}
     </div>
 
     <div class="card">
-      <h2>Millage &amp; Tax (state default = effective mills on market value; editable)</h2>
+      <h2>Millage &amp; Tax (the tenant buyer pays this, so it is not in the profit math; state default = effective mills on market value; editable)</h2>
       <div class="row3">
         <div><label>True cash value ($)</label><input id="m_val" type="number" oninput="millage()"></div>
         <div><label>Millage (mills)</label><input id="m_mills" type="number" step="0.1" oninput="millage()"></div>
@@ -347,7 +347,8 @@ function deal(){
   var cashInvested=down+buyClosing+d.initialRepairs+d.bogCosts+d.upfrontInsurance;
   var pmlPay=pml?amort(d.pmlLoanAmount,d.pmlRate,d.pmlTermMonths):0;
   var oppMo=cashF?cashInvested*d.oppPct/100/12:0;
-  var carry=d.propTax+d.insurance+d.legal;
+  /* Property tax is paid by the tenant buyer, so it is not part of our carry. */
+  var carry=d.insurance+d.legal;
   var tbLoan=d.tbSale-d.tbDown, tbPay=amort(tbLoan,d.tbRate,d.tbTerm);
   var profit1=pml?tbPay-carry-pmlPay:tbPay-carry-oppMo;
   var profit2=tbPay-carry;
@@ -373,7 +374,7 @@ function deal(){
   N.cash=uniq(N.close.concat(N.fund,pml?req(['i_pmlamt']):[],N.upins));
   N.pmlPay=pml?req(['i_pmlamt','i_pmlrate','i_pmlterm']):[];
   N.opp=cashF&&num('i_opp')>0?N.cash:[];
-  N.carry=uniq(TAX.needs.concat(INS.needs));
+  N.carry=uniq(INS.needs);
   N.wrap=req(['i_tbsale','i_tbrate','i_tbterm']);
   N.p1=uniq(N.wrap.concat(N.carry,N.fund,pml?N.pmlPay:N.opp));
   N.p2=uniq(N.wrap.concat(N.carry));
